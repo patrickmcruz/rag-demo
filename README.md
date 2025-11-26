@@ -86,98 +86,208 @@ Este projeto implementa um sistema RAG (Retrieval-Augmented Generation) completo
 ## 🔧 Pré-requisitos
 
 ### Sistema
-- Python 3.9+
-- 4GB+ RAM (para embeddings)
-- ~2GB de espaço em disco
+- **Python 3.9+** (testado com Python 3.12)
+- **4GB+ RAM** (para embeddings e modelos)
+- **~2GB de espaço em disco** (para modelos e índices)
+- **Windows 10/11, Linux ou macOS**
 
-### Software necessário
-1. **Ollama** (para LLM local)
-   ```bash
-   # Instalar Ollama: https://ollama.ai
-   # Baixar modelo:
-   ollama pull llama3
-   ```
+### Software Necessário
 
-2. **Python e pip**
-   ```bash
-   python --version  # deve ser 3.9+
-   ```
+#### 1. Python e pip
+```bash
+python --version  # deve ser 3.9 ou superior
+pip --version
+```
+
+#### 2. Ollama (LLM Local)
+**Instalar Ollama:**
+- Windows/Mac: Baixe de [https://ollama.ai](https://ollama.ai)
+- Linux: `curl -fsSL https://ollama.ai/install.sh | sh`
+
+**Baixar um modelo:**
+```bash
+# Verificar se Ollama está rodando
+ollama list
+
+# Baixar modelo recomendado
+ollama pull llama3
+
+# Ou outros modelos disponíveis:
+# ollama pull llama2
+# ollama pull mistral
+# ollama pull phi
+```
+
+**Verificar instalação:**
+```bash
+ollama run llama3 "Hello"
+```
+
+#### 3. Microsoft Visual C++ Build Tools (Somente Windows)
+**Necessário para compilar algumas dependências Python**
+
+- **Opção 1 (Recomendada):** Baixe e instale: [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
+  - Durante instalação, selecione "Desktop development with C++"
+  
+- **Opção 2:** Ative o Developer Mode no Windows
+  - Configurações → Atualização e Segurança → Para desenvolvedores → Modo de Desenvolvedor
+
+> **Nota:** Se não instalar, você pode ter erros ao instalar pacotes como `chroma-hnswlib`
+
+### Dependências Python Críticas
+
+O projeto usa as seguintes versões específicas para compatibilidade:
+
+- **NumPy:** `1.26.4` (não use NumPy 2.0+ - incompatível com sentence-transformers)
+- **LangChain:** Pacotes atualizados (`langchain-chroma`, `langchain-ollama`, `langchain-huggingface`)
+- **ChromaDB:** `>=0.5.0` (corrige problemas de telemetria)
+- **sentence-transformers:** Para embeddings locais
+
+> **Importante:** As dependências serão instaladas automaticamente pelo `requirements.txt` com as versões corretas.
 
 ## 📦 Instalação
 
 ### 1. Clone o repositório
 ```bash
-git clone https://github.com/patrickmcruz/rag-demo
+git clone https://github.com/patrickmcruz/rag-demo.git
 cd rag-demo
 ```
 
-### 2. Crie um ambiente virtual
+### 2. Crie e ative um ambiente virtual
 ```bash
+# Criar ambiente virtual
 python -m venv .venv
 
-# Windows
-.venv\Scripts\activate
+# Ativar ambiente virtual
+# Windows PowerShell:
+.\.venv\Scripts\Activate.ps1
 
-# Linux/Mac
+# Windows CMD:
+.venv\Scripts\activate.bat
+
+# Linux/Mac:
 source .venv/bin/activate
 ```
+
+> **Importante:** Sempre ative o ambiente virtual antes de executar comandos Python!
 
 ### 3. Instale as dependências
 ```bash
 pip install -r requirements.txt
 ```
 
+> **Nota:** A instalação inclui:
+> - LangChain e componentes atualizados
+> - ChromaDB para vector store
+> - Sentence Transformers para embeddings
+> - NumPy 1.26.4 (compatível)
+> - Todas as dependências necessárias
+
 ### 4. Configure as variáveis de ambiente
 ```bash
 # Copie o arquivo de exemplo
+# Windows:
+copy .env.example .env
+
+# Linux/Mac:
 cp .env.example .env
 
-# Edite .env conforme necessário
+# Edite .env conforme necessário (opcional)
+```
+
+**Configurações principais no `.env`:**
+```env
+OLLAMA_MODEL=llama3              # Modelo Ollama a usar
+VECTORSTORE_DIR=./vectorstore    # Onde salvar índice
+DATA_DIR=./data                  # Pasta com documentos
+CHUNK_SIZE=500                   # Tamanho dos chunks
+TOP_K_DOCUMENTS=3                # Documentos a recuperar
+TEMPERATURE=0.0                  # Temperatura do LLM (0.0 = determinístico)
+ANONYMIZED_TELEMETRY=False       # Desabilitar telemetria ChromaDB
+```
+
+### 5. Verifique a instalação
+```bash
+# Verificar se Ollama está rodando
+ollama list
+
+# Testar imports Python
+python -c "from src.ingest import ingest_documents; print('OK')"
 ```
 
 ## 🚀 Uso
 
 ### 1. Preparar documentos
-Coloque seus documentos na pasta `data/`:
+Coloque seus documentos (PDF, TXT, MD) na pasta `data/`:
 ```bash
-# Adicione arquivos .txt, .pdf ou .md
+# Exemplo: copiar seus PDFs
 cp seus_documentos.pdf data/
+
+# Ou criar subpastas
+mkdir data/contratos
+cp *.pdf data/contratos/
 ```
 
-### 2. Indexar documentos
+### 2. Indexar documentos (Ingestão)
+
+**Usando a CLI (Recomendado):**
+```bash
+# Ativar ambiente virtual primeiro!
+.\.venv\Scripts\Activate.ps1
+
+# Indexar todos os documentos em data/
+python main.py ingest
+
+# Opções avançadas:
+python main.py ingest --file-types pdf,txt --chunk-size 500 --chunk-overlap 50
+```
+
+**Usando Python diretamente:**
 ```python
-python -c "
 from src.ingest import ingest_documents
 
 # Indexar todos os documentos
-ingest_documents(
+vectorstore = ingest_documents(
     data_dir='./data',
     persist_dir='./vectorstore',
-    file_types=['txt', 'pdf', 'md']
+    file_types=['txt', 'pdf', 'md'],  # Tipos de arquivo
+    chunk_size=500,                    # Tamanho dos chunks
+    chunk_overlap=50                   # Sobreposição entre chunks
 )
-"
+
+print("Indexação concluída!")
 ```
 
-### 3. Consultar o sistema
+> **Nota:** A primeira vez que rodar, o sistema baixará o modelo de embeddings (~90MB)
 
-#### Modo interativo (CLI)
-```python
-from src.chain import create_rag_chain
-from src.query import interactive_query_loop
+### 3. Consultar o sistema (Queries)
 
-# Criar chain
-chain = create_rag_chain(vectorstore_path='./vectorstore')
+#### Modo Interativo (CLI)
+```bash
+# Iniciar modo interativo
+python main.py query --interactive
 
-# Iniciar CLI interativo
-interactive_query_loop(chain)
+# Exemplo de uso:
+# > Quais são os cargos do edital?
+# > Qual o prazo de validade?
+# > exit  (para sair)
 ```
 
-#### Modo programático
+#### Consulta Única
+```bash
+# Fazer uma pergunta direta
+python main.py query -q "Qual o conteúdo do documento?"
+
+# Com opções personalizadas:
+python main.py query -q "Resumo" --top-k 5 --temperature 0.7 --model mistral
+```
+
+#### Modo Programático
 ```python
 from src.chain import create_rag_chain
 from src.query import RAGQuery
 
-# Criar chain
+# Criar chain RAG
 chain = create_rag_chain(
     vectorstore_path='./vectorstore',
     model_name='llama3',
@@ -186,15 +296,45 @@ chain = create_rag_chain(
 )
 
 # Criar interface de query
-query = RAGQuery(chain, model_name='llama3')
+query_interface = RAGQuery(chain, model_name='llama3')
 
 # Fazer pergunta
-response = query.query("Qual é o assunto principal dos documentos?")
+response = query_interface.query("Qual é o assunto principal?")
+
+# Exibir resposta formatada
 print(response)
 
 # Ver estatísticas
-print(query.get_stats())
+stats = query_interface.get_stats()
+print(f"Total de queries: {stats['total_queries']}")
+print(f"Tempo médio: {stats['avg_response_time']:.2f}s")
 ```
+
+### 4. Adicionar novos documentos
+
+Quando adicionar novos documentos, **re-indexe** para atualizar o vectorstore:
+
+```bash
+# 1. Adicionar novos arquivos em data/
+cp novo_documento.pdf data/
+
+# 2. Re-indexar
+python main.py ingest
+
+# O sistema criará um novo índice com todos os documentos
+```
+
+### 5. Ver informações do sistema
+
+```bash
+python main.py info
+```
+
+Exibe:
+- Modelo LLM configurado
+- Modelo de embeddings
+- Número de documentos indexados
+- Localização do vectorstore
 
 ## 📁 Estrutura do Projeto
 
@@ -316,6 +456,100 @@ ollama pull <model-name>
 - [ ] Suporte a conversas (chat com memória)
 - [ ] Multi-tenancy
 - [ ] Deploy com Docker
+
+## 🔍 Troubleshooting
+
+### Problemas Comuns e Soluções
+
+#### 1. Erro: "Microsoft Visual C++ 14.0 or greater is required"
+**Problema:** Ao instalar dependências no Windows, falta compilador C++.
+
+**Solução:**
+- Instale [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
+- OU remova `chroma-hnswlib` do requirements.txt (não é obrigatório)
+
+#### 2. Erro: "np.float_ was removed in NumPy 2.0"
+**Problema:** Incompatibilidade entre NumPy 2.0+ e sentence-transformers.
+
+**Solução:**
+```bash
+pip install "numpy==1.26.4" --force-reinstall
+```
+
+#### 3. Erro: "Vector store not found"
+**Problema:** Tentando fazer query antes de indexar documentos.
+
+**Solução:**
+```bash
+# Primeiro indexe os documentos
+python main.py ingest
+
+# Depois faça queries
+python main.py query -q "sua pergunta"
+```
+
+#### 4. Erro: "Ollama call failed with status code 404"
+**Problema:** Modelo Ollama não está instalado.
+
+**Solução:**
+```bash
+# Verificar modelos instalados
+ollama list
+
+# Instalar modelo necessário
+ollama pull llama3
+```
+
+#### 5. Erro: "ModuleNotFoundError: No module named 'langchain_community'"
+**Problema:** Ambiente virtual não está ativado ou dependências não foram instaladas.
+
+**Solução:**
+```bash
+# Windows PowerShell:
+.\.venv\Scripts\Activate.ps1
+
+# Reinstalar dependências
+pip install -r requirements.txt
+```
+
+#### 6. Warnings de Deprecation do LangChain
+**Problema:** Usando versões antigas de pacotes LangChain.
+
+**Solução:** As versões corretas já estão no `requirements.txt`:
+- `langchain-chroma` (não `langchain_community.vectorstores`)
+- `langchain-ollama` (não `langchain_community.llms`)
+- `langchain-huggingface` (não `langchain_community.embeddings`)
+
+#### 7. ChromaDB Telemetry Errors
+**Problema:** Erros de telemetria do ChromaDB no console.
+
+**Solução:** Já configurado no código para desabilitar telemetria automaticamente.
+
+#### 8. Certificado SSL em ambientes corporativos
+**Problema:** Erros de certificado ao baixar modelos.
+
+**Solução:**
+```bash
+# Temporariamente (não recomendado em produção)
+set CURL_CA_BUNDLE=
+pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
+```
+
+### Dicas de Performance
+
+**Melhorar velocidade de resposta:**
+- Use modelos menores: `ollama pull phi` ou `ollama pull mistral`
+- Reduza `top_k` para 2 ou 1
+- Configure `temperature=0.0` para respostas mais rápidas
+
+**Economizar memória:**
+- Use chunks menores: `CHUNK_SIZE=300`
+- Processe menos documentos por vez
+
+**Melhorar qualidade das respostas:**
+- Aumente `top_k` para 5-7
+- Use `chunk_overlap` maior: `100`
+- Teste diferentes modelos Ollama
 
 ## ❓ FAQ
 

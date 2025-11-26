@@ -1,21 +1,26 @@
+
 """Main application entry point.
 
 This module provides CLI commands for the RAG system.
 """
 
+import os
+from dotenv import load_dotenv
+
+# Load environment variables first
+load_dotenv()
+
+# Disable ChromaDB telemetry before importing chromadb
+os.environ["ANONYMIZED_TELEMETRY"] = "False"
+
 import argparse
 import logging
 import sys
 from pathlib import Path
-from dotenv import load_dotenv
-import os
 
 from src.ingest import ingest_documents
 from src.chain import create_rag_chain
 from src.query import interactive_query_loop, RAGQuery
-
-# Load environment variables
-load_dotenv()
 
 # Configure logging
 logging.basicConfig(

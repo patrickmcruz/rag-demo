@@ -9,9 +9,9 @@ import os
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_community.vectorstores import Chroma
-from langchain_community.llms import Ollama
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_chroma import Chroma
+from langchain_ollama import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough, RunnableParallel
 from langchain_core.output_parsers import StrOutputParser
@@ -73,7 +73,7 @@ class RAGChainBuilder:
         """Build and configure the LLM."""
         logger.info(f"Initializing LLM: {self.model_name}")
 
-        llm = Ollama(
+        llm = OllamaLLM(
             model=self.model_name,
             temperature=self.temperature,
         )

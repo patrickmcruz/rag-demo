@@ -152,7 +152,7 @@ Detailed answer:"""
             | StrOutputParser()
         )
         
-        logger.info("✅ RAG chain built successfully")
+        logger.info("RAG chain built successfully")
         return rag_chain
 
 

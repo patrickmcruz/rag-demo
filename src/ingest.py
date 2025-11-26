@@ -156,7 +156,7 @@ class DocumentIngestor:
             persist_directory=persist_dir,
         )
         
-        logger.info(f"✅ Vector store created and persisted to {persist_dir}")
+        logger.info(f"Vector store created and persisted to {persist_dir}")
         return vectorstore
 
     def ingest(
@@ -186,7 +186,7 @@ class DocumentIngestor:
             vectorstore = self.create_vectorstore(splits, persist_dir)
             
             logger.info(
-                f"✅ Successfully ingested {len(docs)} documents "
+                f"Successfully ingested {len(docs)} documents "
                 f"({len(splits)} chunks) into {persist_dir}"
             )
             return vectorstore

@@ -35,7 +35,7 @@ class RAGResponse:
         if not self.sources:
             return "Nenhuma fonte encontrada."
         
-        formatted = "\n\n📚 Fontes:\n"
+        formatted = "\n\nFontes:\n"
         for i, doc in enumerate(self.sources, 1):
             source = doc.metadata.get("source", "Desconhecida")
             content_preview = doc.page_content[:150].replace("\n", " ")
@@ -47,7 +47,7 @@ class RAGResponse:
         return (
             f"Resposta: {self.answer}\n"
             f"{self.format_sources()}\n"
-            f"⏱️ Tempo de resposta: {self.response_time:.2f}s\n"
+            f"Tempo de resposta: {self.response_time:.2f}s\n"
             f"🤖 Modelo: {self.model_name}"
         )
 
@@ -220,29 +220,29 @@ def interactive_query_loop(rag_chain, model_name: str = "llama3"):
     
     while True:
         try:
-            question = input("\n❓ Pergunta: ").strip()
+            question = input("\nPergunta: ").strip()
             
             if not question:
                 continue
             
             if question.lower() in ["sair", "exit", "quit"]:
-                print("\n👋 Encerrando...")
+                print("\nEncerrando...")
                 stats = query_interface.get_stats()
                 if stats["total_queries"] > 0:
-                    print(f"\n📊 Total de consultas: {stats['total_queries']}")
-                    print(f"⏱️  Tempo médio: {stats['avg_response_time']:.2f}s")
+                    print(f"\nTotal de consultas: {stats['total_queries']}")
+                    print(f" Tempo médio: {stats['avg_response_time']:.2f}s")
                 break
             
             if question.lower() == "stats":
                 stats = query_interface.get_stats()
-                print("\n📊 Estatísticas:")
+                print("\nEstatísticas:")
                 for key, value in stats.items():
                     print(f"  {key}: {value if isinstance(value, int) else f'{value:.2f}'}")
                 continue
             
             if question.lower() == "clear":
                 query_interface.clear_history()
-                print("✅ Histórico limpo")
+                print("Histórico limpo")
                 continue
             
             # Query the RAG system
@@ -250,17 +250,17 @@ def interactive_query_loop(rag_chain, model_name: str = "llama3"):
             
             # Display response
             print("\n" + "="*60)
-            print(f"💡 Resposta:\n{response.answer}")
+            print(f"Resposta:\n{response.answer}")
             print(response.format_sources())
-            print(f"⏱️  Tempo: {response.response_time:.2f}s")
+            print(f" Tempo: {response.response_time:.2f}s")
             print("="*60)
             
         except KeyboardInterrupt:
-            print("\n\n👋 Encerrando...")
+            print("\n\nEncerrando...")
             break
         except Exception as e:
             logger.error(f"Erro: {e}")
-            print(f"\n❌ Erro: {e}")
+            print(f"\nErro: {e}")
 
 
 if __name__ == "__main__":

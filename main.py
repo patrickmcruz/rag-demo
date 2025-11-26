@@ -39,7 +39,7 @@ def cmd_ingest(args):
             chunk_size=args.chunk_size,
             chunk_overlap=args.chunk_overlap,
         )
-        print("\n✅ Indexing completed successfully!")
+        print("\nIndexing completed successfully!")
     except Exception as e:
         logger.error(f"Indexing failed: {e}")
         sys.exit(1)
@@ -76,7 +76,7 @@ def cmd_query(args):
 def cmd_info(args):
     """Display system information."""
     print("\n" + "="*60)
-    print("📊 RAG System Information")
+    print("RAG System Information")
     print("="*60)
     
     data_dir = Path(args.data_dir)
@@ -95,7 +95,7 @@ def cmd_info(args):
     
     print(f"\n💾 Vectorstore Directory: {vectorstore_dir}")
     if vectorstore_dir.exists():
-        print("   ✅ Vectorstore exists")
+        print("   Vectorstore exists")
     else:
         print("   ⚠️  Vectorstore not initialized (run 'ingest' first)")
     

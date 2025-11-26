@@ -27,12 +27,12 @@ Sistema de Retrieval-Augmented Generation (RAG) profissional usando LangChain, C
 
 Este projeto implementa um sistema RAG (Retrieval-Augmented Generation) completo e profissional, seguindo as melhores práticas de engenharia de software:
 
-- ✅ **Modular e testável**: Código organizado com separação clara de responsabilidades
-- ✅ **Logging e validações**: Tratamento de erros robusto e logs informativos
-- ✅ **Suporte multi-formato**: PDF, TXT, Markdown
-- ✅ **Configurável**: Variáveis de ambiente para todas as configurações
-- ✅ **Documentado**: Docstrings completas e type hints
-- ✅ **Preparado para produção**: Estrutura escalável e manutenível
+- **Modular e testável**: Código organizado com separação clara de responsabilidades
+- **Logging e validações**: Tratamento de erros robusto e logs informativos
+- **Suporte multi-formato**: PDF, TXT, Markdown
+- **Configurável**: Variáveis de ambiente para todas as configurações
+- **Documentado**: Docstrings completas e type hints
+- **Preparado para produção**: Estrutura escalável e manutenível
 
 ## 🏗️ Arquitetura
 
@@ -63,24 +63,24 @@ Este projeto implementa um sistema RAG (Retrieval-Augmented Generation) completo
 ## ✨ Funcionalidades
 
 ### Ingestion Pipeline
-- ✅ Carregamento de múltiplos formatos (TXT, PDF, MD)
-- ✅ Splitting inteligente de documentos
-- ✅ Embeddings com HuggingFace (sentence-transformers)
-- ✅ Indexação persistente com Chroma
-- ✅ Logging detalhado de todo o processo
+- Carregamento de múltiplos formatos (TXT, PDF, MD)
+- Splitting inteligente de documentos
+- Embeddings com HuggingFace (sentence-transformers)
+- Indexação persistente com Chroma
+- Logging detalhado de todo o processo
 
 ### RAG Chain
-- ✅ Configuração flexível (temperatura, top-k, etc.)
-- ✅ Suporte para múltiplos modelos Ollama
-- ✅ Prompts otimizados (PT/EN)
-- ✅ Validações e tratamento de erros
+- Configuração flexível (temperatura, top-k, etc.)
+- Suporte para múltiplos modelos Ollama
+- Prompts otimizados (PT/EN)
+- Validações e tratamento de erros
 
 ### Query Interface
-- ✅ CLI interativo
-- ✅ Respostas estruturadas com metadados
-- ✅ Rastreamento de fontes
-- ✅ Métricas de performance
-- ✅ Histórico de consultas
+- CLI interativo
+- Respostas estruturadas com metadados
+- Rastreamento de fontes
+- Métricas de performance
+- Histórico de consultas
 
 ## 🔧 Pré-requisitos
 
@@ -310,7 +310,7 @@ ollama pull <model-name>
 - [ ] Multi-tenancy
 - [ ] Deploy com Docker
 
-## 📚 Recursos Adicionais
+## Recursos Adicionais
 
 ### Documentação
 - [LangChain Docs](https://python.langchain.com/)

@@ -4,7 +4,7 @@
 
 ![Python](https://img.shields.io/badge/python-3.9+-blue.svg)
 ![LangChain](https://img.shields.io/badge/LangChain-0.1.0-green.svg)
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![License](https://img.shields.io/badge/License-GNU%20GPL-blue)
 
 Sistema de Retrieval-Augmented Generation (RAG) profissional usando LangChain, Chroma e Ollama.
 
@@ -333,11 +333,13 @@ Contribuições são bem-vindas! Por favor:
 
 ## 📄 Licença
 
-Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
+Este projeto está sob a licença GNU General Public License.
 
 ## ✍️ Autor
 
-Desenvolvido com ❤️ para demonstrar boas práticas em sistemas RAG.
+**Patrick Motin Cruz**
+AI Software Developer on IPPUC (Institute for Urban esearch and Planning)
+2025
 
 ---
 

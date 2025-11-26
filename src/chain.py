@@ -18,15 +18,14 @@ from langchain_core.output_parsers import StrOutputParser
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 
 class RAGChainBuilder:
     """Builder for creating configurable RAG chains."""
-    
+
     def __init__(
         self,
         vectorstore_path: str,
@@ -36,7 +35,7 @@ class RAGChainBuilder:
         top_k: int = 3,
     ):
         """Initialize RAG chain builder.
-        
+
         Args:
             vectorstore_path: Path to persisted vector store
             model_name: Name of the Ollama model to use
@@ -49,46 +48,44 @@ class RAGChainBuilder:
         self.embedding_model = embedding_model
         self.temperature = temperature
         self.top_k = top_k
-        
+
         # Validate vectorstore exists
         if not Path(vectorstore_path).exists():
             raise ValueError(f"Vector store not found at: {vectorstore_path}")
-    
+
     def build_retriever(self):
         """Build and configure the retriever."""
         logger.info(f"Loading vector store from {self.vectorstore_path}")
-        
+
         embedding = HuggingFaceEmbeddings(model_name=self.embedding_model)
         vectorstore = Chroma(
-            persist_directory=self.vectorstore_path,
-            embedding_function=embedding
+            persist_directory=self.vectorstore_path, embedding_function=embedding
         )
-        
+
         retriever = vectorstore.as_retriever(
-            search_type="similarity",
-            search_kwargs={"k": self.top_k}
+            search_type="similarity", search_kwargs={"k": self.top_k}
         )
-        
+
         logger.info(f"Retriever configured with top_k={self.top_k}")
         return retriever
-    
+
     def build_llm(self):
         """Build and configure the LLM."""
         logger.info(f"Initializing LLM: {self.model_name}")
-        
+
         llm = Ollama(
             model=self.model_name,
             temperature=self.temperature,
         )
-        
+
         return llm
-    
+
     def build_prompt(self, language: str = "pt") -> ChatPromptTemplate:
         """Build the prompt template.
-        
+
         Args:
             language: Language for the prompt ('pt' or 'en')
-            
+
         Returns:
             Configured ChatPromptTemplate
         """
@@ -116,42 +113,39 @@ Context:
 Question: {question}
 
 Detailed answer:"""
-        
+
         return ChatPromptTemplate.from_template(template)
-    
+
     def build(self, language: str = "pt"):
         """Build the complete RAG chain.
-        
+
         Args:
             language: Language for prompts ('pt' or 'en')
-            
+
         Returns:
             Configured RAG chain ready for use
         """
         logger.info("Building RAG chain...")
-        
+
         # Build components
         retriever = self.build_retriever()
         llm = self.build_llm()
         prompt = self.build_prompt(language)
-        
+
         # Format context from retrieved documents
         def format_docs(docs):
             return "\n\n".join(doc.page_content for doc in docs)
-        
+
         # Build the chain with RunnableParallel for better tracking
         rag_chain = (
             RunnableParallel(
-                {
-                    "context": retriever | format_docs,
-                    "question": RunnablePassthrough()
-                }
+                {"context": retriever | format_docs, "question": RunnablePassthrough()}
             )
             | prompt
             | llm
             | StrOutputParser()
         )
-        
+
         logger.info("RAG chain built successfully")
         return rag_chain
 
@@ -165,7 +159,7 @@ def create_rag_chain(
     language: str = "pt",
 ):
     """Convenience function to create a RAG chain.
-    
+
     Args:
         vectorstore_path: Path to persisted vector store
         model_name: Name of the Ollama model to use
@@ -173,10 +167,10 @@ def create_rag_chain(
         temperature: LLM temperature (0.0 = deterministic)
         top_k: Number of documents to retrieve
         language: Language for prompts ('pt' or 'en')
-        
+
     Returns:
         Configured RAG chain
-        
+
     Example:
         >>> chain = create_rag_chain("./vectorstore")
         >>> response = chain.invoke("What is the main topic?")
@@ -193,10 +187,10 @@ def create_rag_chain(
 
 def get_chain_info(chain) -> Dict[str, Any]:
     """Get information about a configured chain.
-    
+
     Args:
         chain: Configured RAG chain
-        
+
     Returns:
         Dictionary with chain configuration details
     """
@@ -204,14 +198,14 @@ def get_chain_info(chain) -> Dict[str, Any]:
         "chain_type": "RAG",
         "components": [],
     }
-    
+
     # Try to extract component information
     try:
-        if hasattr(chain, 'steps'):
+        if hasattr(chain, "steps"):
             info["components"] = [str(step) for step in chain.steps]
     except:
         pass
-    
+
     return info
 
 
@@ -219,7 +213,8 @@ if __name__ == "__main__":
     # Example usage
     print("Este módulo deve ser importado para criar chains RAG.")
     print("\nExemplo de uso:")
-    print("""
+    print(
+        """
     from src.chain import create_rag_chain
     
     # Criar chain
@@ -232,4 +227,5 @@ if __name__ == "__main__":
     # Fazer pergunta
     response = chain.invoke("Qual é o assunto principal?")
     print(response)
-    """)
+    """
+    )

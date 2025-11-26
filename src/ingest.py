@@ -22,8 +22,7 @@ from langchain_core.documents import Document
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -47,7 +46,7 @@ class DocumentIngestor:
         self.embedding_model = embedding_model
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
-        self.embedding = None
+        self.embedding: Optional[HuggingFaceEmbeddings] = None
 
     def _get_embedding(self) -> HuggingFaceEmbeddings:
         """Lazy load embedding model."""
@@ -79,12 +78,12 @@ class DocumentIngestor:
             file_types = ["txt", "pdf", "md"]
 
         all_docs = []
-        
+
         for file_type in file_types:
             try:
                 glob_pattern = f"**/*.{file_type}"
                 logger.info(f"Loading {file_type} files from {data_dir}")
-                
+
                 loader = DirectoryLoader(
                     data_dir,
                     glob=glob_pattern,
@@ -130,11 +129,9 @@ class DocumentIngestor:
         )
         splits = text_splitter.split_documents(documents)
         logger.info(f"Created {len(splits)} chunks")
-        return splits
+        return splits  # type: ignore[no-any-return]
 
-    def create_vectorstore(
-        self, documents: List[Document], persist_dir: str
-    ) -> Chroma:
+    def create_vectorstore(self, documents: List[Document], persist_dir: str) -> Chroma:
         """Create and persist vector store from documents.
 
         Args:
@@ -145,17 +142,17 @@ class DocumentIngestor:
             Chroma vector store instance
         """
         logger.info(f"Creating vector store with {len(documents)} documents")
-        
+
         # Ensure persist directory exists
         Path(persist_dir).mkdir(parents=True, exist_ok=True)
-        
+
         embedding = self._get_embedding()
         vectorstore = Chroma.from_documents(
             documents=documents,
             embedding=embedding,
             persist_directory=persist_dir,
         )
-        
+
         logger.info(f"Vector store created and persisted to {persist_dir}")
         return vectorstore
 
@@ -178,19 +175,19 @@ class DocumentIngestor:
         try:
             # Load documents
             docs = self.load_documents(data_dir, file_types)
-            
+
             # Split into chunks
             splits = self.split_documents(docs)
-            
+
             # Create and persist vector store
             vectorstore = self.create_vectorstore(splits, persist_dir)
-            
+
             logger.info(
                 f"Successfully ingested {len(docs)} documents "
                 f"({len(splits)} chunks) into {persist_dir}"
             )
             return vectorstore
-            
+
         except Exception as e:
             logger.error(f"Error during ingestion: {e}")
             raise

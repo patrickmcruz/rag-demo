@@ -457,109 +457,33 @@ ollama pull <model-name>
 - [ ] Multi-tenancy
 - [ ] Deploy com Docker
 
-## 🔍 Troubleshooting
+## 📚 Documentação Completa
 
-### Problemas Comuns e Soluções
+Para documentação detalhada, consulte o diretório **[docs/](docs/)**:
 
-#### 1. Erro: "Microsoft Visual C++ 14.0 or greater is required"
-**Problema:** Ao instalar dependências no Windows, falta compilador C++.
+### 📖 Guias Essenciais
+- **[Início Rápido](docs/guides/quickstart.md)** - Configure o projeto em 10 minutos
+- **[FAQ - Perguntas Frequentes](docs/FAQ.md)** - Respostas para dúvidas comuns
+- **[Troubleshooting](docs/guides/troubleshooting.md)** - Soluções para problemas comuns
 
-**Solução:**
-- Instale [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
-- OU remova `chroma-hnswlib` do requirements.txt (não é obrigatório)
+### 🔧 Configuração Avançada
+- **[Guia de Modelos LLM](docs/guides/models.md)** - Escolha e configure modelos Ollama
+- **[Guia de Embeddings](docs/guides/embeddings.md)** - Otimize embeddings para seu caso
 
-#### 2. Erro: "np.float_ was removed in NumPy 2.0"
-**Problema:** Incompatibilidade entre NumPy 2.0+ e sentence-transformers.
+### 🏗️ Arquitetura e Desenvolvimento
+- **[Arquitetura do Sistema](docs/ARCHITECTURE.md)** - Estrutura técnica completa
+- **[Changelog](docs/CHANGELOG.md)** - Histórico de mudanças
 
-**Solução:**
-```bash
-pip install "numpy==1.26.4" --force-reinstall
-```
+### 🔍 Problemas Comuns (Resumo)
 
-#### 3. Erro: "Vector store not found"
-**Problema:** Tentando fazer query antes de indexar documentos.
+| Problema | Solução Rápida |
+|----------|----------------|
+| Vector store not found | Execute `python main.py ingest` primeiro |
+| Ollama 404 error | Instale o modelo: `ollama pull llama3` |
+| ModuleNotFoundError | Ative ambiente virtual: `.\.venv\Scripts\Activate.ps1` |
+| NumPy 2.0 error | `pip install "numpy==1.26.4" --force-reinstall` |
 
-**Solução:**
-```bash
-# Primeiro indexe os documentos
-python main.py ingest
-
-# Depois faça queries
-python main.py query -q "sua pergunta"
-```
-
-#### 4. Erro: "Ollama call failed with status code 404"
-**Problema:** Modelo Ollama não está instalado.
-
-**Solução:**
-```bash
-# Verificar modelos instalados
-ollama list
-
-# Instalar modelo necessário
-ollama pull llama3
-```
-
-#### 5. Erro: "ModuleNotFoundError: No module named 'langchain_community'"
-**Problema:** Ambiente virtual não está ativado ou dependências não foram instaladas.
-
-**Solução:**
-```bash
-# Windows PowerShell:
-.\.venv\Scripts\Activate.ps1
-
-# Reinstalar dependências
-pip install -r requirements.txt
-```
-
-#### 6. Warnings de Deprecation do LangChain
-**Problema:** Usando versões antigas de pacotes LangChain.
-
-**Solução:** As versões corretas já estão no `requirements.txt`:
-- `langchain-chroma` (não `langchain_community.vectorstores`)
-- `langchain-ollama` (não `langchain_community.llms`)
-- `langchain-huggingface` (não `langchain_community.embeddings`)
-
-#### 7. ChromaDB Telemetry Errors
-**Problema:** Erros de telemetria do ChromaDB no console.
-
-**Solução:** Já configurado no código para desabilitar telemetria automaticamente.
-
-#### 8. Certificado SSL em ambientes corporativos
-**Problema:** Erros de certificado ao baixar modelos.
-
-**Solução:**
-```bash
-# Temporariamente (não recomendado em produção)
-set CURL_CA_BUNDLE=
-pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
-```
-
-### Dicas de Performance
-
-**Melhorar velocidade de resposta:**
-- Use modelos menores: `ollama pull phi` ou `ollama pull mistral`
-- Reduza `top_k` para 2 ou 1
-- Configure `temperature=0.0` para respostas mais rápidas
-
-**Economizar memória:**
-- Use chunks menores: `CHUNK_SIZE=300`
-- Processe menos documentos por vez
-
-**Melhorar qualidade das respostas:**
-- Aumente `top_k` para 5-7
-- Use `chunk_overlap` maior: `100`
-- Teste diferentes modelos Ollama
-
-## ❓ FAQ
-
-Perguntas frequentes sobre o projeto? Consulte o **[FAQ.md](FAQ.md)** para:
-
-- Como funciona a sanitização e tokenização?
-- Que melhorias implementar na pipeline?
-- Troubleshooting de problemas comuns
-- Otimização de performance
-- Escolha de modelos de embedding
+**Ver todas as soluções**: [Troubleshooting Completo](docs/guides/troubleshooting.md)
 
 ## Recursos Adicionais
 

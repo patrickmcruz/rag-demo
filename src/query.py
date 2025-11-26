@@ -46,8 +46,8 @@ class RAGResponse:
         return (
             f"Resposta: {self.answer}\n"
             f"{self.format_sources()}\n"
-            f"Tempo de resposta: {self.response_time:.2f}s\n"
-            f"🤖 Modelo: {self.model_name}"
+            f"[TIME] Tempo de resposta: {self.response_time:.2f}s\n"
+            f"[MODEL] Modelo: {self.model_name}"
         )
 
 
@@ -211,7 +211,7 @@ def interactive_query_loop(rag_chain, model_name: str = "llama3"):
     query_interface = RAGQuery(rag_chain, model_name)
 
     print("\n" + "=" * 60)
-    print("🤖 RAG Query Interface")
+    print("[RAG] Query Interface")
     print("=" * 60)
     print("Digite sua pergunta (ou 'sair' para encerrar)")
     print("Comandos especiais:")
@@ -221,7 +221,7 @@ def interactive_query_loop(rag_chain, model_name: str = "llama3"):
 
     while True:
         try:
-            question = input("\nPergunta: ").strip()
+            question = input("\n[QUERY] Pergunta: ").strip()
 
             if not question:
                 continue
@@ -253,17 +253,17 @@ def interactive_query_loop(rag_chain, model_name: str = "llama3"):
 
             # Display response
             print("\n" + "=" * 60)
-            print(f"Resposta:\n{response.answer}")
+            print(f"[ANSWER] Resposta:\n{response.answer}")
             print(response.format_sources())
-            print(f" Tempo: {response.response_time:.2f}s")
+            print(f"[TIME] Tempo: {response.response_time:.2f}s")
             print("=" * 60)
 
         except KeyboardInterrupt:
-            print("\n\nEncerrando...")
+            print("\n\n[EXIT] Encerrando...")
             break
         except Exception as e:
             logger.error(f"Erro: {e}")
-            print(f"\nErro: {e}")
+            print(f"\n[ERROR] Erro: {e}")
 
 
 if __name__ == "__main__":

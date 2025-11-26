@@ -82,7 +82,7 @@ def cmd_info(args):
     data_dir = Path(args.data_dir)
     vectorstore_dir = Path(args.vectorstore_dir)
     
-    print(f"\n📁 Data Directory: {data_dir}")
+    print(f"\n[DATA] Data Directory: {data_dir}")
     if data_dir.exists():
         files = list(data_dir.glob("*.*"))
         print(f"   Files: {len(files)}")
@@ -91,16 +91,16 @@ def cmd_info(args):
             if count > 0:
                 print(f"   - {ext}: {count}")
     else:
-        print("   ⚠️  Directory does not exist")
+        print("   [WARNING] Directory does not exist")
     
-    print(f"\n💾 Vectorstore Directory: {vectorstore_dir}")
+    print(f"\n[STORAGE] Vectorstore Directory: {vectorstore_dir}")
     if vectorstore_dir.exists():
-        print("   Vectorstore exists")
+        print("   [OK] Vectorstore exists")
     else:
-        print("   ⚠️  Vectorstore not initialized (run 'ingest' first)")
+        print("   [WARNING] Vectorstore not initialized (run 'ingest' first)")
     
-    print(f"\n🤖 LLM Model: {args.model}")
-    print(f"🔢 Embedding Model: {os.getenv('EMBEDDING_MODEL', 'all-MiniLM-L6-v2')}")
+    print(f"\n[MODEL] LLM Model: {args.model}")
+    print(f"[EMBEDDING] Embedding Model: {os.getenv('EMBEDDING_MODEL', 'all-MiniLM-L6-v2')}")
     
     print("\n" + "="*60 + "\n")
 

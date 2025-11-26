@@ -5,7 +5,6 @@ into a vector store for retrieval-augmented generation.
 """
 
 import logging
-import os
 from pathlib import Path
 from typing import List, Optional
 
@@ -20,10 +19,6 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
 logger = logging.getLogger(__name__)
 
 
@@ -199,6 +194,7 @@ def ingest_documents(
     file_types: Optional[List[str]] = None,
     chunk_size: int = 500,
     chunk_overlap: int = 50,
+    embedding_model: str = "all-MiniLM-L6-v2",
 ) -> Chroma:
     """Convenience function for document ingestion.
 
@@ -208,6 +204,7 @@ def ingest_documents(
         file_types: List of file extensions to load (default: ['txt', 'pdf', 'md'])
         chunk_size: Size of text chunks for splitting
         chunk_overlap: Overlap between consecutive chunks
+        embedding_model: Embedding model to use
 
     Returns:
         Chroma vector store instance
@@ -215,5 +212,6 @@ def ingest_documents(
     ingestor = DocumentIngestor(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
+        embedding_model=embedding_model,
     )
     return ingestor.ingest(data_dir, persist_dir, file_types)

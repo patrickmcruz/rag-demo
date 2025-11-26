@@ -11,10 +11,6 @@ from typing import List, Optional, Dict, Any
 
 from langchain_core.documents import Document
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
 logger = logging.getLogger(__name__)
 
 
@@ -94,7 +90,7 @@ class RAGQuery:
             answer = self.rag_chain.invoke(question)
 
             # Get source documents (if retriever is accessible)
-            sources = []
+            sources: List[Document] = []
             if return_sources:
                 sources = self._get_sources(question)
 
@@ -124,7 +120,7 @@ class RAGQuery:
 
             return response
 
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.error(f"Error during query: {e}")
             raise
 
@@ -138,16 +134,13 @@ class RAGQuery:
             List of source documents
         """
         try:
-            # Try to access the retriever from the chain
-            # This is a workaround since we can't directly access it
-            # In production, you might want to pass the retriever separately
             if hasattr(self.rag_chain, "first"):
                 retriever_dict = self.rag_chain.first
                 if "context" in retriever_dict:
                     retriever = retriever_dict["context"]
                     return retriever.get_relevant_documents(question)  # type: ignore[no-any-return]
             return []
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.warning(f"Could not retrieve sources: {e}")
             return []
 
@@ -261,7 +254,7 @@ def interactive_query_loop(rag_chain, model_name: str = "llama3"):
         except KeyboardInterrupt:
             print("\n\n[EXIT] Encerrando...")
             break
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.error(f"Erro: {e}")
             print(f"\n[ERROR] Erro: {e}")
 
@@ -274,7 +267,7 @@ if __name__ == "__main__":
         """
     from src.chain import create_rag_chain
     from src.query import interactive_query_loop
-    
+
     chain = create_rag_chain("./vectorstore")
     interactive_query_loop(chain)
     """

@@ -1,10 +1,9 @@
 """Tests for RAG system components."""
 
-import os
-import pytest
 from pathlib import Path
-import tempfile
 import shutil
+import time
+import pytest
 
 # Test configuration
 TEST_DATA_DIR = Path(__file__).parent / "test_data"
@@ -16,7 +15,6 @@ def test_data_dir():
     """Create test data directory with sample documents."""
     TEST_DATA_DIR.mkdir(exist_ok=True)
 
-    # Create sample text file
     sample_txt = TEST_DATA_DIR / "sample.txt"
     sample_txt.write_text(
         "Python é uma linguagem de programação de alto nível. "
@@ -31,7 +29,7 @@ def test_data_dir():
         try:
             shutil.rmtree(TEST_DATA_DIR, ignore_errors=True)
         except Exception:
-            pass  # Ignore cleanup errors
+            pass
 
 
 @pytest.fixture(scope="session")
@@ -43,12 +41,10 @@ def test_vectorstore_dir():
     # Cleanup - with retry for Windows file locks
     if TEST_VECTORSTORE_DIR.exists():
         try:
-            import time
-
             time.sleep(0.5)  # Give time for file handles to close
             shutil.rmtree(TEST_VECTORSTORE_DIR, ignore_errors=True)
         except Exception:
-            pass  # Ignore cleanup errors
+            pass
 
 
 class TestDocumentIngestor:
@@ -100,7 +96,7 @@ class TestDocumentIngestor:
         splits = ingestor.split_documents(docs)
 
         assert len(splits) >= len(docs)
-        assert all(len(split.page_content) <= 50 + 10 for split in splits)
+        assert all(len(split.page_content) <= 60 for split in splits)
 
     @pytest.mark.slow
     def test_create_vectorstore(self, test_data_dir, test_vectorstore_dir):
@@ -214,7 +210,6 @@ class TestIntegration:
         assert vectorstore is not None
 
         # Step 2: Create RAG chain (would require Ollama running)
-        # This is commented out as it requires external dependencies
         # chain = create_rag_chain(vectorstore_path)
         # response = chain.invoke("O que é Python?")
         # assert response is not None

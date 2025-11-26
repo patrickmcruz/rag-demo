@@ -18,31 +18,34 @@ import logging
 import sys
 from pathlib import Path
 
+from src.config import AppConfig, resolve_path
 from src.ingest import ingest_documents
 from src.chain import create_rag_chain
 from src.query import interactive_query_loop, RAGQuery
+from src.logging_config import configure_logging
 
-# Configure logging
-logging.basicConfig(
-    level=os.getenv("LOG_LEVEL", "INFO"),
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+# Central logging configuration
+app_config = AppConfig.load()
+configure_logging(app_config.log_level)
 logger = logging.getLogger(__name__)
 
 
 def cmd_ingest(args):
     """Handle ingest command."""
-    logger.info(f"Indexing documents from {args.data_dir}")
+    data_dir = str(resolve_path(Path(args.data_dir)))
+    vectorstore_dir = str(resolve_path(Path(args.vectorstore_dir)))
+    logger.info(f"Indexing documents from {data_dir}")
     
     file_types = args.file_types.split(",") if args.file_types else None
     
     try:
         ingest_documents(
-            data_dir=args.data_dir,
-            persist_dir=args.vectorstore_dir,
+            data_dir=data_dir,
+            persist_dir=vectorstore_dir,
             file_types=file_types,
             chunk_size=args.chunk_size,
             chunk_overlap=args.chunk_overlap,
+            embedding_model=args.embedding_model,
         )
         print("\nIndexing completed successfully!")
     except Exception as e:
@@ -55,9 +58,11 @@ def cmd_query(args):
     logger.info("Starting query interface")
     
     try:
+        vectorstore_dir = str(resolve_path(Path(args.vectorstore_dir)))
         chain = create_rag_chain(
-            vectorstore_path=args.vectorstore_dir,
+            vectorstore_path=vectorstore_dir,
             model_name=args.model,
+            embedding_model=args.embedding_model,
             top_k=args.top_k,
             temperature=args.temperature,
         )
@@ -84,8 +89,8 @@ def cmd_info(args):
     print("RAG System Information")
     print("="*60)
     
-    data_dir = Path(args.data_dir)
-    vectorstore_dir = Path(args.vectorstore_dir)
+    data_dir = resolve_path(Path(args.data_dir))
+    vectorstore_dir = resolve_path(Path(args.vectorstore_dir))
     
     print(f"\n[DATA] Data Directory: {data_dir}")
     if data_dir.exists():
@@ -105,13 +110,15 @@ def cmd_info(args):
         print("   [WARNING] Vectorstore not initialized (run 'ingest' first)")
     
     print(f"\n[MODEL] LLM Model: {args.model}")
-    print(f"[EMBEDDING] Embedding Model: {os.getenv('EMBEDDING_MODEL', 'all-MiniLM-L6-v2')}")
+    print(f"[EMBEDDING] Embedding Model: {args.embedding_model}")
     
     print("\n" + "="*60 + "\n")
 
 
 def main():
     """Main CLI entry point."""
+    config = app_config
+
     parser = argparse.ArgumentParser(
         description="RAG Demo - Professional RAG system with LangChain",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -120,18 +127,23 @@ def main():
     # Global arguments
     parser.add_argument(
         "--data-dir",
-        default=os.getenv("DATA_DIR", "./data"),
+        default=str(config.data_dir),
         help="Directory containing source documents"
     )
     parser.add_argument(
         "--vectorstore-dir",
-        default=os.getenv("VECTORSTORE_DIR", "./vectorstore"),
+        default=str(config.vectorstore_dir),
         help="Directory for vector store"
     )
     parser.add_argument(
         "--model",
-        default=os.getenv("OLLAMA_MODEL", "llama3"),
+        default=config.model,
         help="Ollama model name"
+    )
+    parser.add_argument(
+        "--embedding-model",
+        default=config.embedding_model,
+        help="Embedding model name"
     )
     
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
@@ -145,13 +157,13 @@ def main():
     ingest_parser.add_argument(
         "--chunk-size",
         type=int,
-        default=int(os.getenv("CHUNK_SIZE", 500)),
+        default=config.chunk_size,
         help="Chunk size for splitting"
     )
     ingest_parser.add_argument(
         "--chunk-overlap",
         type=int,
-        default=int(os.getenv("CHUNK_OVERLAP", 50)),
+        default=config.chunk_overlap,
         help="Chunk overlap"
     )
     
@@ -169,13 +181,13 @@ def main():
     query_parser.add_argument(
         "--top-k",
         type=int,
-        default=int(os.getenv("TOP_K_DOCUMENTS", 3)),
+        default=config.top_k_documents,
         help="Number of documents to retrieve"
     )
     query_parser.add_argument(
         "--temperature",
         type=float,
-        default=float(os.getenv("TEMPERATURE", 0.0)),
+        default=config.temperature,
         help="LLM temperature"
     )
     

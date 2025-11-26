@@ -5,9 +5,8 @@ chain with support for different LLMs, embeddings, and observability.
 """
 
 import logging
-import os
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Dict, Any
 
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
@@ -16,10 +15,6 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough, RunnableParallel
 from langchain_core.output_parsers import StrOutputParser
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
 logger = logging.getLogger(__name__)
 
 
@@ -203,7 +198,7 @@ def get_chain_info(chain) -> Dict[str, Any]:
     try:
         if hasattr(chain, "steps"):
             info["components"] = [str(step) for step in chain.steps]
-    except:
+    except Exception:  # noqa: BLE001
         pass
 
     return info
@@ -216,14 +211,14 @@ if __name__ == "__main__":
     print(
         """
     from src.chain import create_rag_chain
-    
+
     # Criar chain
     chain = create_rag_chain(
         vectorstore_path="./vectorstore",
         model_name="llama3",
         top_k=3
     )
-    
+
     # Fazer pergunta
     response = chain.invoke("Qual é o assunto principal?")
     print(response)

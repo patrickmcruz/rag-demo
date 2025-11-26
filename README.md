@@ -106,7 +106,7 @@ Este projeto implementa um sistema RAG (Retrieval-Augmented Generation) completo
 
 ### 1. Clone o repositório
 ```bash
-git clone https://github.com/seu-usuario/rag-demo.git
+git clone https://github.com/patrickmcruz/rag-demo
 cd rag-demo
 ```
 

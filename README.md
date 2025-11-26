@@ -338,7 +338,8 @@ Este projeto está sob a licença GNU General Public License.
 ## ✍️ Autor
 
 **Patrick Motin Cruz**
-AI Software Developer on IPPUC (Institute for Urban esearch and Planning)
+AI Software Developer on IPPUC (Institute for Urban Research and Planning).
+Graduate student in Data Science at UTFPR (Federal Technological University of Paraná).
 2025
 
 ---

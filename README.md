@@ -22,6 +22,7 @@ Sistema de Retrieval-Augmented Generation (RAG) profissional usando LangChain, C
 - [Testes](#-testes)
 - [Configuração](#-configuração)
 - [Próximos Passos](#-próximos-passos)
+- [FAQ](#-faq)
 
 ## 🎯 Sobre
 
@@ -293,12 +294,18 @@ ollama pull <model-name>
 ## 🔮 Próximos Passos
 
 ### Curto prazo
+- [ ] **Sanitização de texto**: Implementar limpeza de documentos (remover caracteres especiais, normalizar Unicode, múltiplos espaços)
+- [ ] **Token-based splitting**: Substituir `RecursiveCharacterTextSplitter` por `TokenTextSplitter` para respeitar limites do modelo
+- [ ] **Validação de chunks**: Garantir que chunks não excedam 256 tokens do modelo de embeddings
 - [ ] Adicionar suporte a mais formatos (DOCX, HTML)
-- [ ] Implementar cache de embeddings
+- [ ] Implementar cache de embeddings para evitar reprocessamento
 - [ ] Adicionar CLI com argparse
 - [ ] Melhorar prompts para casos específicos
 
 ### Médio prazo
+- [ ] **Pré-processamento avançado**: OCR para PDFs escaneados, limpeza de headers/footers
+- [ ] **Modelos de embedding alternativos**: Suporte para modelos multilíngues e otimizados para português
+- [ ] **Chunking semântico**: Divisão por seções/parágrafos em vez de apenas tamanho
 - [ ] Integrar LangSmith para observabilidade
 - [ ] Adicionar avaliação com RAGAS
 - [ ] Implementar API REST com FastAPI
@@ -309,6 +316,16 @@ ollama pull <model-name>
 - [ ] Suporte a conversas (chat com memória)
 - [ ] Multi-tenancy
 - [ ] Deploy com Docker
+
+## ❓ FAQ
+
+Perguntas frequentes sobre o projeto? Consulte o **[FAQ.md](FAQ.md)** para:
+
+- Como funciona a sanitização e tokenização?
+- Que melhorias implementar na pipeline?
+- Troubleshooting de problemas comuns
+- Otimização de performance
+- Escolha de modelos de embedding
 
 ## Recursos Adicionais
 

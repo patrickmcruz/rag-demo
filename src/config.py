@@ -42,6 +42,20 @@ class AppConfig:
         )
 
 
+class ConfigManager:
+    """Object to manage application configuration lifecycle."""
+
+    def __init__(self, env: Optional[dict] = None):
+        self._env = env or os.environ
+        self._config: Optional[AppConfig] = None
+
+    def load(self) -> AppConfig:
+        """Load and cache configuration from environment variables."""
+        if self._config is None:
+            self._config = AppConfig.load(self._env)
+        return self._config
+
+
 def resolve_path(path: Path) -> Path:
     """Expand user/home and return absolute path."""
     return path.expanduser().resolve()

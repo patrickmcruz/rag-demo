@@ -201,62 +201,72 @@ def interactive_query_loop(rag_chain, model_name: str = "llama3"):
         rag_chain: Configured RAG chain
         model_name: Name of the LLM model
     """
-    query_interface = RAGQuery(rag_chain, model_name)
+    InteractiveQueryCLI(RAGQuery(rag_chain, model_name)).run()
 
-    print("\n" + "=" * 60)
-    print("[RAG] Query Interface")
-    print("=" * 60)
-    print("Digite sua pergunta (ou 'sair' para encerrar)")
-    print("Comandos especiais:")
-    print("  - 'stats': Mostrar estatísticas")
-    print("  - 'clear': Limpar histórico")
-    print("=" * 60 + "\n")
 
-    while True:
-        try:
-            question = input("\n[QUERY] Pergunta: ").strip()
+class InteractiveQueryCLI:
+    """CLI helper to run interactive query loops."""
 
-            if not question:
-                continue
+    def __init__(self, query_interface: RAGQuery):
+        self.query_interface = query_interface
 
-            if question.lower() in ["sair", "exit", "quit"]:
-                print("\nEncerrando...")
-                stats = query_interface.get_stats()
-                if stats["total_queries"] > 0:
-                    print(f"\nTotal de consultas: {stats['total_queries']}")
-                    print(f" Tempo médio: {stats['avg_response_time']:.2f}s")
+    def _print_header(self) -> None:
+        print("\n" + "=" * 60)
+        print("[RAG] Query Interface")
+        print("=" * 60)
+        print("Digite sua pergunta (ou 'sair' para encerrar)")
+        print("Comandos especiais:")
+        print("  - 'stats': Mostrar estatísticas")
+        print("  - 'clear': Limpar histórico")
+        print("=" * 60 + "\n")
+
+    def run(self) -> None:
+        """Run interactive loop."""
+        self._print_header()
+
+        while True:
+            try:
+                question = input("\n[QUERY] Pergunta: ").strip()
+
+                if not question:
+                    continue
+
+                if question.lower() in ["sair", "exit", "quit"]:
+                    print("\nEncerrando...")
+                    stats = self.query_interface.get_stats()
+                    if stats["total_queries"] > 0:
+                        print(f"\nTotal de consultas: {stats['total_queries']}")
+                        print(f" Tempo médio: {stats['avg_response_time']:.2f}s")
+                    break
+
+                if question.lower() == "stats":
+                    stats = self.query_interface.get_stats()
+                    print("\nEstatísticas:")
+                    for key, value in stats.items():
+                        print(
+                            f"  {key}: {value if isinstance(value, int) else f'{value:.2f}'}"
+                        )
+                    continue
+
+                if question.lower() == "clear":
+                    self.query_interface.clear_history()
+                    print("Histórico limpo")
+                    continue
+
+                response = self.query_interface.query(question, verbose=True)
+
+                print("\n" + "=" * 60)
+                print(f"[ANSWER] Resposta:\n{response.answer}")
+                print(response.format_sources())
+                print(f"[TIME] Tempo: {response.response_time:.2f}s")
+                print("=" * 60)
+
+            except KeyboardInterrupt:
+                print("\n\n[EXIT] Encerrando...")
                 break
-
-            if question.lower() == "stats":
-                stats = query_interface.get_stats()
-                print("\nEstatísticas:")
-                for key, value in stats.items():
-                    print(
-                        f"  {key}: {value if isinstance(value, int) else f'{value:.2f}'}"
-                    )
-                continue
-
-            if question.lower() == "clear":
-                query_interface.clear_history()
-                print("Histórico limpo")
-                continue
-
-            # Query the RAG system
-            response = query_interface.query(question, verbose=True)
-
-            # Display response
-            print("\n" + "=" * 60)
-            print(f"[ANSWER] Resposta:\n{response.answer}")
-            print(response.format_sources())
-            print(f"[TIME] Tempo: {response.response_time:.2f}s")
-            print("=" * 60)
-
-        except KeyboardInterrupt:
-            print("\n\n[EXIT] Encerrando...")
-            break
-        except Exception as e:  # noqa: BLE001
-            logger.error(f"Erro: {e}")
-            print(f"\n[ERROR] Erro: {e}")
+            except Exception as e:  # noqa: BLE001
+                logger.error(f"Erro: {e}")
+                print(f"\n[ERROR] Erro: {e}")
 
 
 if __name__ == "__main__":

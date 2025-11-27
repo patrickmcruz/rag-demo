@@ -188,6 +188,22 @@ class DocumentIngestor:
             raise
 
 
+class IngestionService:
+    """Higher-level ingestion service that orchestrates the ingestion pipeline."""
+
+    def __init__(self, ingestor: DocumentIngestor):
+        self.ingestor = ingestor
+
+    def run(
+        self,
+        data_dir: str,
+        persist_dir: str,
+        file_types: Optional[List[str]] = None,
+    ) -> Chroma:
+        """Execute full ingestion pipeline."""
+        return self.ingestor.ingest(data_dir, persist_dir, file_types)
+
+
 def ingest_documents(
     data_dir: str,
     persist_dir: str,

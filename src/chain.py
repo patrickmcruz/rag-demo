@@ -145,6 +145,32 @@ Detailed answer:"""
         return rag_chain
 
 
+class RAGChainFactory:
+    """Factory that produces configured RAG chains."""
+
+    def __init__(
+        self,
+        vectorstore_path: str,
+        model_name: str = "llama3",
+        embedding_model: str = "all-MiniLM-L6-v2",
+        temperature: float = 0.0,
+        top_k: int = 3,
+        language: str = "pt",
+    ):
+        self.builder = RAGChainBuilder(
+            vectorstore_path=vectorstore_path,
+            model_name=model_name,
+            embedding_model=embedding_model,
+            temperature=temperature,
+            top_k=top_k,
+        )
+        self.language = language
+
+    def create(self):
+        """Create and return a configured chain."""
+        return self.builder.build(self.language)
+
+
 def create_rag_chain(
     vectorstore_path: str,
     model_name: str = "llama3",
@@ -153,31 +179,16 @@ def create_rag_chain(
     top_k: int = 3,
     language: str = "pt",
 ):
-    """Convenience function to create a RAG chain.
-
-    Args:
-        vectorstore_path: Path to persisted vector store
-        model_name: Name of the Ollama model to use
-        embedding_model: Name of HuggingFace embedding model
-        temperature: LLM temperature (0.0 = deterministic)
-        top_k: Number of documents to retrieve
-        language: Language for prompts ('pt' or 'en')
-
-    Returns:
-        Configured RAG chain
-
-    Example:
-        >>> chain = create_rag_chain("./vectorstore")
-        >>> response = chain.invoke("What is the main topic?")
-    """
-    builder = RAGChainBuilder(
+    """Convenience function to create a RAG chain using the factory."""
+    factory = RAGChainFactory(
         vectorstore_path=vectorstore_path,
         model_name=model_name,
         embedding_model=embedding_model,
         temperature=temperature,
         top_k=top_k,
+        language=language,
     )
-    return builder.build(language)
+    return factory.create()
 
 
 def get_chain_info(chain) -> Dict[str, Any]:

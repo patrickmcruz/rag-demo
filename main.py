@@ -19,15 +19,14 @@ import sys
 from pathlib import Path
 
 from src.config import AppConfig, resolve_path
-from src.ingest import ingest_documents
-from src.chain import create_rag_chain
-from src.query import interactive_query_loop, RAGQuery
 from src.logging_config import configure_logging
+from src.app import RAGApplication
 
 # Central logging configuration
 app_config = AppConfig.load()
 configure_logging(app_config.log_level)
 logger = logging.getLogger(__name__)
+app = RAGApplication(app_config)
 
 
 def cmd_ingest(args):
@@ -37,15 +36,20 @@ def cmd_ingest(args):
     logger.info(f"Indexing documents from {data_dir}")
     
     file_types = args.file_types.split(",") if args.file_types else None
+
+    app.apply_overrides(
+        data_dir=Path(data_dir),
+        vectorstore_dir=Path(vectorstore_dir),
+        embedding_model=args.embedding_model,
+        chunk_size=args.chunk_size,
+        chunk_overlap=args.chunk_overlap,
+    )
     
     try:
-        ingest_documents(
+        app.ingest(
             data_dir=data_dir,
             persist_dir=vectorstore_dir,
             file_types=file_types,
-            chunk_size=args.chunk_size,
-            chunk_overlap=args.chunk_overlap,
-            embedding_model=args.embedding_model,
         )
         print("\nIndexing completed successfully!")
     except Exception as e:
@@ -58,24 +62,23 @@ def cmd_query(args):
     logger.info("Starting query interface")
     
     try:
-        vectorstore_dir = str(resolve_path(Path(args.vectorstore_dir)))
-        chain = create_rag_chain(
-            vectorstore_path=vectorstore_dir,
-            model_name=args.model,
+        app.apply_overrides(
+            model=args.model,
             embedding_model=args.embedding_model,
-            top_k=args.top_k,
+            top_k_documents=args.top_k,
             temperature=args.temperature,
+            data_dir=resolve_path(Path(args.data_dir)),
+            vectorstore_dir=resolve_path(Path(args.vectorstore_dir)),
         )
-        
+
         if args.interactive:
-            interactive_query_loop(chain, model_name=args.model)
+            app.interactive_cli()
         else:
             if not args.question:
                 print("Error: --question is required for non-interactive mode")
                 sys.exit(1)
             
-            query_interface = RAGQuery(chain, model_name=args.model)
-            response = query_interface.query(args.question, verbose=True)
+            response = app.query(args.question, verbose=True)
             print(f"\n{response}")
             
     except Exception as e:

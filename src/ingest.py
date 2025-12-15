@@ -19,6 +19,8 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
 
+from src.chain import get_device
+
 logger = logging.getLogger(__name__)
 
 
@@ -30,6 +32,8 @@ class DocumentIngestor:
         embedding_model: str = "all-MiniLM-L6-v2",
         chunk_size: int = 500,
         chunk_overlap: int = 50,
+        use_gpu: bool = False,
+        gpu_device: int = 0,
     ):
         """Initialize the document ingestor.
 
@@ -37,17 +41,26 @@ class DocumentIngestor:
             embedding_model: Name of the HuggingFace embedding model
             chunk_size: Size of text chunks for splitting
             chunk_overlap: Overlap between consecutive chunks
+            use_gpu: Whether to use GPU for embeddings
+            gpu_device: GPU device ID to use
         """
         self.embedding_model = embedding_model
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
+        self.use_gpu = use_gpu
+        self.gpu_device = gpu_device
         self.embedding: Optional[HuggingFaceEmbeddings] = None
 
     def _get_embedding(self) -> HuggingFaceEmbeddings:
         """Lazy load embedding model."""
         if self.embedding is None:
-            logger.info(f"Loading embedding model: {self.embedding_model}")
-            self.embedding = HuggingFaceEmbeddings(model_name=self.embedding_model)
+            device = get_device(self.use_gpu, self.gpu_device)
+            logger.info(f"Loading embedding model: {self.embedding_model} on {device}")
+            self.embedding = HuggingFaceEmbeddings(
+                model_name=self.embedding_model,
+                model_kwargs={'device': device},
+                encode_kwargs={'normalize_embeddings': True}
+            )
         return self.embedding
 
     def load_documents(

@@ -63,6 +63,8 @@ class RAGApplication:
                 embedding_model=self.config.embedding_model,
                 chunk_size=self.config.chunk_size,
                 chunk_overlap=self.config.chunk_overlap,
+                use_gpu=self.config.use_gpu,
+                gpu_device=self.config.gpu_device,
             )
         )
 
@@ -96,6 +98,8 @@ class RAGApplication:
             temperature=self.config.temperature,
             top_k=self.config.top_k_documents,
             language="pt",
+            use_gpu=self.config.use_gpu,
+            gpu_device=self.config.gpu_device,
         )
         self._rag_chain = factory.create()
         return self._rag_chain

@@ -8,6 +8,12 @@ import logging
 from pathlib import Path
 from typing import Dict, Any
 
+try:
+    import torch
+    TORCH_AVAILABLE = True
+except ImportError:
+    TORCH_AVAILABLE = False
+
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 from langchain_ollama import OllamaLLM
@@ -16,6 +22,34 @@ from langchain_core.runnables import RunnablePassthrough, RunnableParallel
 from langchain_core.output_parsers import StrOutputParser
 
 logger = logging.getLogger(__name__)
+
+
+def get_device(use_gpu: bool = False, gpu_device: int = 0) -> str:
+    """Detect and return the appropriate device for embeddings.
+    
+    Args:
+        use_gpu: Whether to use GPU if available
+        gpu_device: GPU device ID to use
+        
+    Returns:
+        Device string ('cuda:0', 'cuda:1', 'cpu')
+    """
+    if not use_gpu:
+        logger.info("GPU disabled by configuration, using CPU")
+        return "cpu"
+    
+    if not TORCH_AVAILABLE:
+        logger.warning("PyTorch not available, falling back to CPU")
+        return "cpu"
+    
+    if torch.cuda.is_available():
+        device = f"cuda:{gpu_device}"
+        gpu_name = torch.cuda.get_device_name(gpu_device)
+        logger.info(f"GPU available: {gpu_name}, using {device}")
+        return device
+    else:
+        logger.warning("CUDA not available, falling back to CPU")
+        return "cpu"
 
 
 class RAGChainBuilder:
@@ -28,6 +62,8 @@ class RAGChainBuilder:
         embedding_model: str = "all-MiniLM-L6-v2",
         temperature: float = 0.0,
         top_k: int = 3,
+        use_gpu: bool = False,
+        gpu_device: int = 0,
     ):
         """Initialize RAG chain builder.
 
@@ -37,12 +73,15 @@ class RAGChainBuilder:
             embedding_model: Name of HuggingFace embedding model
             temperature: LLM temperature (0.0 = deterministic)
             top_k: Number of documents to retrieve
+            use_gpu: Whether to use GPU for embeddings
+            gpu_device: GPU device ID to use
         """
         self.vectorstore_path = vectorstore_path
         self.model_name = model_name
         self.embedding_model = embedding_model
         self.temperature = temperature
         self.top_k = top_k
+        self.device = get_device(use_gpu, gpu_device)
 
         # Validate vectorstore exists
         if not Path(vectorstore_path).exists():
@@ -51,8 +90,13 @@ class RAGChainBuilder:
     def build_retriever(self):
         """Build and configure the retriever."""
         logger.info(f"Loading vector store from {self.vectorstore_path}")
+        logger.info(f"Using device: {self.device}")
 
-        embedding = HuggingFaceEmbeddings(model_name=self.embedding_model)
+        embedding = HuggingFaceEmbeddings(
+            model_name=self.embedding_model,
+            model_kwargs={'device': self.device},
+            encode_kwargs={'normalize_embeddings': True}
+        )
         vectorstore = Chroma(
             persist_directory=self.vectorstore_path, embedding_function=embedding
         )
@@ -156,6 +200,8 @@ class RAGChainFactory:
         temperature: float = 0.0,
         top_k: int = 3,
         language: str = "pt",
+        use_gpu: bool = False,
+        gpu_device: int = 0,
     ):
         self.builder = RAGChainBuilder(
             vectorstore_path=vectorstore_path,
@@ -163,6 +209,8 @@ class RAGChainFactory:
             embedding_model=embedding_model,
             temperature=temperature,
             top_k=top_k,
+            use_gpu=use_gpu,
+            gpu_device=gpu_device,
         )
         self.language = language
 
@@ -178,6 +226,8 @@ def create_rag_chain(
     temperature: float = 0.0,
     top_k: int = 3,
     language: str = "pt",
+    use_gpu: bool = False,
+    gpu_device: int = 0,
 ):
     """Convenience function to create a RAG chain using the factory."""
     factory = RAGChainFactory(
@@ -187,6 +237,8 @@ def create_rag_chain(
         temperature=temperature,
         top_k=top_k,
         language=language,
+        use_gpu=use_gpu,
+        gpu_device=gpu_device,
     )
     return factory.create()
 

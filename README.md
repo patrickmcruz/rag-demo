@@ -59,6 +59,43 @@ Principais variaveis (veja `.env.example`):
 - `EMBEDDING_MODEL`
 - `CHUNK_SIZE`, `CHUNK_OVERLAP`, `TOP_K_DOCUMENTS`, `TEMPERATURE`
 - `LOG_LEVEL`
+- `USE_GPU`, `GPU_DEVICE` (opcional, para aceleracao GPU)
+
+## Aceleracao por GPU (Opcional)
+
+A aplicacao usa **CPU por padrao**, mas pode ser acelerada com GPU NVIDIA (CUDA):
+
+### Requisitos
+- GPU NVIDIA compativel (GTX 1060+, RTX serie)
+- CUDA Toolkit 11.8+ instalado
+- Drivers NVIDIA atualizados
+
+### Instalacao
+```bash
+# Instalar PyTorch com CUDA
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+# Verificar disponibilidade
+python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')"
+```
+
+### Configuracao
+Adicione ao `.env`:
+```bash
+USE_GPU=true
+GPU_DEVICE=0  # ID da GPU (0, 1, 2...)
+```
+
+### Performance
+- **Embeddings**: 3-5x mais rapido com GPU
+- **LLM (Ollama)**: Usa GPU automaticamente se disponivel
+- **Recomendado**: 6GB+ VRAM para modelos grandes
+
+### Monitorar uso da GPU
+```bash
+# Durante ingestao/query:
+nvidia-smi -l 1
+```
 
 ## CLI (comandos)
 - `python main.py ingest` — indexa arquivos (opcoes: `--file-types`, `--chunk-size`, `--chunk-overlap`).

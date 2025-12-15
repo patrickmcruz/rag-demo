@@ -24,6 +24,8 @@ class AppConfig:
     top_k_documents: int
     temperature: float
     log_level: str
+    use_gpu: bool
+    gpu_device: int
 
     @classmethod
     def load(cls, env: Optional[dict] = None) -> "AppConfig":
@@ -39,6 +41,8 @@ class AppConfig:
             top_k_documents=int(env.get("TOP_K_DOCUMENTS", 3)),
             temperature=float(env.get("TEMPERATURE", 0.0)),
             log_level=env.get("LOG_LEVEL", "INFO"),
+            use_gpu=env.get("USE_GPU", "false").lower() == "true",
+            gpu_device=int(env.get("GPU_DEVICE", 0)),
         )
 
 

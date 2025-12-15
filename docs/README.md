@@ -12,6 +12,8 @@ Bem-vindo a documentacao do projeto **RAG Demo** - sistema de Retrieval-Augmente
 - **[Resolucao de Problemas](guides/troubleshooting.md)**: solucoes para erros comuns.
 - **[Guia de Modelos LLM](guides/models.md)**: escolha e configuracao de modelos Ollama.
 - **[Guia de Embeddings](guides/embeddings.md)**: como otimizar embeddings.
+- **[Aceleracao por GPU](guides/gpu-acceleration.md)**: configure CUDA para performance maxima.
+- **[Testes](guides/testing.md)**: como executar e criar testes.
 
 ## Por onde comecar
 - Novo no projeto? Leia o [README principal](../README.md), siga o [Inicio Rapido](guides/quickstart.md) e consulte o [FAQ](FAQ.md).
@@ -30,6 +32,8 @@ docs/
     embeddings.md          # Guia de embeddings
     models.md              # Guia de modelos LLM
     troubleshooting.md     # Resolucao de problemas
+    gpu-acceleration.md    # Aceleracao por GPU
+    testing.md             # Guia de testes
 ```
 
 ## Recursos do projeto
@@ -50,6 +54,8 @@ docs/
 | `TOP_K_DOCUMENTS`  | `3`                | Documentos retornados pelo retriever         |
 | `TEMPERATURE`      | `0.0`              | Temperatura do LLM                           |
 | `LOG_LEVEL`        | `INFO`             | Nivel de log                                 |
+| `USE_GPU`          | `false`            | Habilitar aceleracao GPU                     |
+| `GPU_DEVICE`       | `0`                | ID do dispositivo GPU                        |
 
 ## Contribuindo
 1. Use linguagem clara e exemplos praticos.

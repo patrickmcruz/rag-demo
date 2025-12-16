@@ -129,29 +129,45 @@ class RAGChainBuilder:
             Configured ChatPromptTemplate
         """
         if language == "pt":
-            template = """Você é um assistente útil que responde perguntas com base em documentos fornecidos.
+            template = """Você é um assistente especializado em análise de documentos legais e editais.
 
-Use APENAS as informações do contexto abaixo para responder à pergunta.
-Se você não souber a resposta com base no contexto, diga "Não tenho informações suficientes para responder essa pergunta."
+📋 TAREFA: Responder completamente à pergunta com TODAS as informações disponíveis.
 
-Contexto:
+⚠️ INSTRUÇÕES CRÍTICAS:
+1. LEIA TODO o contexto fornecido
+2. LISTE TODOS os itens relevantes (não apenas alguns)
+3. Se a pergunta pede lista → SEMPRE use formato numerado
+4. Se há múltiplos itens similares → LISTE TODOS SEM EXCEÇÃO
+5. Se a resposta estiver incompleta no contexto, indique "Ver documento para lista completa"
+6. Cite PÁGINA ou SEÇÃO quando possível
+
+📄 CONTEXTO DO DOCUMENTO:
 {context}
 
-Pergunta: {question}
+❓ PERGUNTA DO USUÁRIO:
+{question}
 
-Resposta detalhada:"""
+✅ RESPOSTA COMPLETA E DETALHADA:"""
         else:
-            template = """You are a helpful assistant that answers questions based on provided documents.
+            template = """You are a legal document and tender analysis specialist.
 
-Use ONLY the information from the context below to answer the question.
-If you don't know the answer based on the context, say "I don't have enough information to answer this question."
+📋 TASK: Answer the question completely with ALL available information.
 
-Context:
+⚠️ CRITICAL INSTRUCTIONS:
+1. READ ALL the provided context
+2. LIST ALL relevant items (not just some)
+3. For listing requests → ALWAYS use numbered format
+4. If there are multiple similar items → LIST ALL WITHOUT EXCEPTION
+5. If the answer seems incomplete, add "See document for complete list"
+6. Cite PAGE or SECTION when possible
+
+📄 DOCUMENT CONTEXT:
 {context}
 
-Question: {question}
+❓ USER QUESTION:
+{question}
 
-Detailed answer:"""
+✅ COMPLETE AND DETAILED ANSWER:"""
 
         return ChatPromptTemplate.from_template(template)
 

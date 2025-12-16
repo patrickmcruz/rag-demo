@@ -12,6 +12,7 @@ Bem-vindo a documentacao do projeto **RAG Demo** - sistema de Retrieval-Augmente
 - **[Resolucao de Problemas](guides/troubleshooting.md)**: solucoes para erros comuns.
 - **[Guia de Modelos LLM](guides/models.md)**: escolha e configuracao de modelos Ollama.
 - **[Guia de Embeddings](guides/embeddings.md)**: como otimizar embeddings.
+- **[Otimizacao de Performance](guides/optimization.md)**: melhorar performance e qualidade.
 - **[Aceleracao por GPU](guides/gpu-acceleration.md)**: configure CUDA para performance maxima.
 - **[Testes](guides/testing.md)**: como executar e criar testes.
 
@@ -32,6 +33,7 @@ docs/
     embeddings.md          # Guia de embeddings
     models.md              # Guia de modelos LLM
     troubleshooting.md     # Resolucao de problemas
+    optimization.md        # Otimizacao de performance
     gpu-acceleration.md    # Aceleracao por GPU
     testing.md             # Guia de testes
 ```

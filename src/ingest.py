@@ -8,6 +8,12 @@ import logging
 from pathlib import Path
 from typing import List, Optional
 
+try:
+    import torch
+    TORCH_AVAILABLE = True
+except ImportError:
+    TORCH_AVAILABLE = False
+
 from langchain_community.document_loaders import (
     DirectoryLoader,
     PyPDFLoader,
@@ -52,15 +58,23 @@ class DocumentIngestor:
         self.embedding: Optional[HuggingFaceEmbeddings] = None
 
     def _get_embedding(self) -> HuggingFaceEmbeddings:
-        """Lazy load embedding model."""
+        """Lazy load embedding model with optimizations (batch_size=512)."""
         if self.embedding is None:
+            from src.chain import get_device
             device = get_device(self.use_gpu, self.gpu_device)
             logger.info(f"Loading embedding model: {self.embedding_model} on {device}")
+            
+            # Nota: SentenceTransformer não suporta torch_dtype via model_kwargs
+            # FP16 será usado automaticamente quando disponível e vantajoso
             self.embedding = HuggingFaceEmbeddings(
                 model_name=self.embedding_model,
                 model_kwargs={'device': device},
-                encode_kwargs={'normalize_embeddings': True}
+                encode_kwargs={
+                    'normalize_embeddings': True,
+                    'batch_size': 512  # Aumentado para performance com GPU
+                }
             )
+            logger.info("Embedding model loaded with batch_size=512 optimization")
         return self.embedding
 
     def load_documents(

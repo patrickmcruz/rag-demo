@@ -1,4 +1,5 @@
-import os
+"""Unit tests for AppConfig and ConfigManager."""
+
 from pathlib import Path
 
 from src.config import AppConfig, ConfigManager, resolve_path
@@ -9,10 +10,10 @@ def test_app_config_defaults():
     assert cfg.data_dir == Path("./data")
     assert cfg.vectorstore_dir == Path("./vectorstore")
     assert cfg.model == "llama3"
-    assert cfg.embedding_model == "all-MiniLM-L6-v2"
+    assert cfg.embedding_model == "all-MiniLM-L12-v2"
 
 
-def test_app_config_env_overrides(monkeypatch):
+def test_app_config_env_overrides():
     env = {
         "DATA_DIR": "/tmp/data",
         "VECTORSTORE_DIR": "/tmp/vs",

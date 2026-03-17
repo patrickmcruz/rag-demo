@@ -1,6 +1,8 @@
+"""Unit tests for RAGChainFactory."""
+
 import pytest
 
-from src.chain import RAGChainFactory, RAGChainBuilder
+from src.chain import RAGChainBuilder, RAGChainFactory
 
 
 class DummyBuilder(RAGChainBuilder):
@@ -14,7 +16,8 @@ class DummyBuilder(RAGChainBuilder):
 
 def test_factory_uses_builder(monkeypatch, tmp_path):
     dummy_builder = DummyBuilder()
-    def fake_builder(vectorstore_path, model_name, embedding_model, temperature, top_k):
+
+    def fake_builder(vectorstore_path, model_name, embedding_model, temperature, top_k, use_gpu=False, gpu_device=0):
         assert vectorstore_path == str(tmp_path)
         assert model_name == "llama"
         assert embedding_model == "embed"

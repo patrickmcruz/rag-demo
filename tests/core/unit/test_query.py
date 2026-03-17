@@ -1,17 +1,9 @@
-from src.query import RAGQuery, RAGResponse, InteractiveQueryCLI
+"""Unit tests for RAGQuery, RAGResponse and InteractiveQueryCLI."""
 
+import pytest
 
-class FakeChain:
-    def __init__(self):
-        self.calls = []
-        self.first = {"context": self}
-
-    def invoke(self, question):
-        self.calls.append(question)
-        return f"answer:{question}"
-
-    def get_relevant_documents(self, question):
-        return []
+from src.query import InteractiveQueryCLI, RAGQuery, RAGResponse
+from tests.helpers import DummyChain
 
 
 def test_rag_response_format_sources_empty():
@@ -26,7 +18,7 @@ def test_rag_response_format_sources_empty():
 
 
 def test_query_happy_path():
-    chain = FakeChain()
+    chain = DummyChain()
     rag = RAGQuery(chain, model_name="llama")
     resp = rag.query("hi", return_sources=True, verbose=True)
     assert resp.answer == "answer:hi"
@@ -34,7 +26,7 @@ def test_query_happy_path():
 
 
 def test_batch_query():
-    chain = FakeChain()
+    chain = DummyChain()
     rag = RAGQuery(chain, model_name="llama")
     resps = rag.batch_query(["a", "b"])
     assert len(resps) == 2
@@ -42,7 +34,7 @@ def test_batch_query():
 
 
 def test_query_stats_and_clear():
-    chain = FakeChain()
+    chain = DummyChain()
     rag = RAGQuery(chain, model_name="llama")
     rag.query("x")
     stats = rag.get_stats()
@@ -52,21 +44,16 @@ def test_query_stats_and_clear():
 
 
 def test_query_empty_raises():
-    chain = FakeChain()
+    chain = DummyChain()
     rag = RAGQuery(chain, model_name="llama")
-    try:
+    with pytest.raises(ValueError):
         rag.query("")
-    except ValueError:
-        assert True
-    else:
-        assert False
 
 
 def test_interactive_cli_commands(monkeypatch, capsys):
-    # Simulate: stats -> clear -> sair
     inputs = iter(["stats", "clear", "sair"])
     monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-    rag = RAGQuery(FakeChain(), model_name="llama")
+    rag = RAGQuery(DummyChain(), model_name="llama")
     cli = InteractiveQueryCLI(rag)
     cli.run()
     out = capsys.readouterr().out

@@ -66,12 +66,21 @@ docs/
 4. Inclua exemplos de codigo quando relevante.
 5. Atualize o Changelog.
 
-## Suporte
-- Issues: [GitHub Issues](https://github.com/patrickmcruz/rag-demo/issues)
-- Discussoes: [GitHub Discussions](https://github.com/patrickmcruz/rag-demo/discussions)
-- Email: patrickmcruz@gmail.com
+## Issues, Suporte e Sugestões
+Comportamentos erráticos observados de incompatibilidade entre os compoenetes, falhas nas tipagens e bugs visuais devem ser registrados como *Issues* no [repositório corporativo do GitHub]().
 
----
+Por favor, para padronização:
+1. Identifique o prefixo: `[rag-demo]` no título.
+2. Comprove a falha do componente através de screenshots injetados na issue.
+3. Se o bug estiver em testes, forneça o terminal output.
 
-Ultima atualizacao: Novembro 2025  
-Versao da documentacao: 1.0.0
+**Autor (Arquitetura e MVP):** Patrick Motin Cruz - IA Fullstack Developer | Analytics Engineering | Pós-graduando em Ciência de Dados - UTFPR
+
+O RAG-demo é um sub-projeto do **Hiperverse**, por usa vez é um sistema desenvolvido sob demanda e arquitetura proprietária.
+**Propriedade Intelectual e Licença:** Privada
+©️ **IPPUC** (Instituto de Pesquisa e Planejamento Urbano de Curitiba). 
+
+Todos os direitos reservados. O uso, cópia, modificação ou distribuição não autorizada deste software, ou de qualquer de seus componentes, é estritamente proibido.
+
+
+

@@ -218,6 +218,7 @@ pytest tests/core -q
 
 ## Documentos complementares
 - [README da raiz](../README.md)
+- [USAGE.md](USAGE.md)
 - [architecture/ARCHITECTURE.md](architecture/ARCHITECTURE.md)
 - [CHANGELOG.md](CHANGELOG.md)
 - [guides/testing.md](guides/testing.md)

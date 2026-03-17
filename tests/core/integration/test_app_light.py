@@ -5,7 +5,7 @@ Uses DummyChain to avoid any real LLM, ChromaDB, or embedding calls.
 
 import pytest
 
-from src.app import RAGApplication
+from src.core.rag_service import RAGApplication
 from tests.helpers import DummyChain
 
 

@@ -1,8 +1,8 @@
-"""Unit tests for RAGQuery, RAGResponse and InteractiveQueryCLI."""
+"""Unit tests for RAGQuery and RAGResponse."""
 
 import pytest
 
-from src.query import InteractiveQueryCLI, RAGQuery, RAGResponse
+from src.core.query_service import RAGQuery, RAGResponse
 from tests.helpers import DummyChain
 
 
@@ -48,14 +48,3 @@ def test_query_empty_raises():
     rag = RAGQuery(chain, model_name="llama")
     with pytest.raises(ValueError):
         rag.query("")
-
-
-def test_interactive_cli_commands(monkeypatch, capsys):
-    inputs = iter(["stats", "clear", "sair"])
-    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
-    rag = RAGQuery(DummyChain(), model_name="llama")
-    cli = InteractiveQueryCLI(rag)
-    cli.run()
-    out = capsys.readouterr().out
-    assert "[RAG] Query Interface" in out
-    assert "Histórico limpo" in out or "Total de consultas" in out

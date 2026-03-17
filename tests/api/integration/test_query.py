@@ -1,9 +1,11 @@
 """Integration tests for POST /query."""
 
+from pathlib import Path
+
 import pytest
 from langchain_core.documents import Document
 
-from src.query import RAGResponse
+from src.core.query_service import RAGResponse
 
 pytestmark = pytest.mark.integration
 
@@ -32,7 +34,7 @@ def test_query_503_when_vectorstore_missing(api_client):
 
 def test_query_happy_path(api_client, mock_rag_app, monkeypatch):
     """With vectorstore present and mocked query, endpoint returns 200."""
-    mock_rag_app.config.vectorstore_dir.mkdir(parents=True, exist_ok=True)
+    mock_rag_app.config.vectorstore_dir = Path.cwd()
 
     dummy = _make_dummy_response()
     monkeypatch.setattr(mock_rag_app, "query", lambda *a, **kw: dummy)
@@ -51,7 +53,7 @@ def test_query_happy_path(api_client, mock_rag_app, monkeypatch):
 
 
 def test_query_empty_sources_when_return_sources_false(api_client, mock_rag_app, monkeypatch):
-    mock_rag_app.config.vectorstore_dir.mkdir(parents=True, exist_ok=True)
+    mock_rag_app.config.vectorstore_dir = Path.cwd()
 
     dummy = RAGResponse(
         answer="answer",
@@ -71,25 +73,25 @@ def test_query_empty_sources_when_return_sources_false(api_client, mock_rag_app,
 
 
 def test_query_rejects_empty_question(api_client, mock_rag_app):
-    mock_rag_app.config.vectorstore_dir.mkdir(parents=True, exist_ok=True)
+    mock_rag_app.config.vectorstore_dir = Path.cwd()
     response = api_client.post("/query", json={"question": ""})
     assert response.status_code == 422
 
 
 def test_query_rejects_oversized_question(api_client, mock_rag_app):
-    mock_rag_app.config.vectorstore_dir.mkdir(parents=True, exist_ok=True)
+    mock_rag_app.config.vectorstore_dir = Path.cwd()
     response = api_client.post("/query", json={"question": "x" * 2001})
     assert response.status_code == 422
 
 
 def test_query_rejects_invalid_language(api_client, mock_rag_app):
-    mock_rag_app.config.vectorstore_dir.mkdir(parents=True, exist_ok=True)
+    mock_rag_app.config.vectorstore_dir = Path.cwd()
     response = api_client.post("/query", json={"question": "ok", "language": "es"})
     assert response.status_code == 422
 
 
 def test_query_response_time_is_float(api_client, mock_rag_app, monkeypatch):
-    mock_rag_app.config.vectorstore_dir.mkdir(parents=True, exist_ok=True)
+    mock_rag_app.config.vectorstore_dir = Path.cwd()
     dummy = _make_dummy_response()
     monkeypatch.setattr(mock_rag_app, "query", lambda *a, **kw: dummy)
 

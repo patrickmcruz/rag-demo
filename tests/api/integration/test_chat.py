@@ -1,6 +1,7 @@
 """Integration tests for POST /chat/stream (SSE)."""
 
 import json
+from pathlib import Path
 
 import pytest
 
@@ -28,7 +29,7 @@ def test_chat_503_when_vectorstore_missing(api_client):
 
 def test_chat_streams_sse_with_correct_content_type(api_client, mock_rag_app, monkeypatch):
     """With vectorstore present, response is text/event-stream."""
-    mock_rag_app.config.vectorstore_dir.mkdir(parents=True, exist_ok=True)
+    mock_rag_app.config.vectorstore_dir = Path.cwd()
     monkeypatch.setattr(mock_rag_app, "get_chain", lambda: DummyChain())
 
     response = api_client.post("/chat/stream", json={"question": "hello"})
@@ -41,7 +42,7 @@ def test_chat_streams_sse_with_correct_content_type(api_client, mock_rag_app, mo
 
 def test_chat_last_event_is_done(api_client, mock_rag_app, monkeypatch):
     """The final SSE event must carry done=true and an empty token."""
-    mock_rag_app.config.vectorstore_dir.mkdir(parents=True, exist_ok=True)
+    mock_rag_app.config.vectorstore_dir = Path.cwd()
     monkeypatch.setattr(mock_rag_app, "get_chain", lambda: DummyChain())
 
     response = api_client.post("/chat/stream", json={"question": "test"})
@@ -55,7 +56,7 @@ def test_chat_last_event_is_done(api_client, mock_rag_app, monkeypatch):
 
 def test_chat_intermediate_events_not_done(api_client, mock_rag_app, monkeypatch):
     """All SSE events except the last must have done=false."""
-    mock_rag_app.config.vectorstore_dir.mkdir(parents=True, exist_ok=True)
+    mock_rag_app.config.vectorstore_dir = Path.cwd()
     monkeypatch.setattr(mock_rag_app, "get_chain", lambda: DummyChain())
 
     response = api_client.post("/chat/stream", json={"question": "hi"})
@@ -68,6 +69,6 @@ def test_chat_intermediate_events_not_done(api_client, mock_rag_app, monkeypatch
 
 def test_chat_rejects_empty_question(api_client, mock_rag_app):
     """Empty question string fails Pydantic validation with 422."""
-    mock_rag_app.config.vectorstore_dir.mkdir(parents=True, exist_ok=True)
+    mock_rag_app.config.vectorstore_dir = Path.cwd()
     response = api_client.post("/chat/stream", json={"question": ""})
     assert response.status_code == 422

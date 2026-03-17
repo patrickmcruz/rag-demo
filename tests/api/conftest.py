@@ -14,9 +14,9 @@ both core/ and api/ tests.
 import pytest
 from fastapi.testclient import TestClient
 
-from src.api.app import create_app
+from src.api.main import create_app
 from src.api.tasks import IngestJobStore
-from src.app import RAGApplication
+from src.core.rag_service import RAGApplication
 
 
 @pytest.fixture

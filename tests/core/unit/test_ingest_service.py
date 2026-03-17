@@ -1,6 +1,6 @@
 """Unit tests for IngestionService."""
 
-from src.ingest import IngestionService
+from src.core.ingest_service import IngestionService
 from tests.helpers import DummyIngestor
 
 

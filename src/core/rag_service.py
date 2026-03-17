@@ -2,12 +2,12 @@
 
 import logging
 from pathlib import Path
-from typing import Optional, List
+from typing import List, Optional
 
 from src.config import AppConfig
-from src.ingest import DocumentIngestor, IngestionService
-from src.chain import RAGChainFactory
-from src.query import RAGQuery, InteractiveQueryCLI
+from src.core.chain_factory import RAGChainFactory
+from src.core.ingest_service import DocumentIngestor, IngestionService
+from src.core.query_service import RAGQuery
 
 logger = logging.getLogger(__name__)
 
@@ -120,9 +120,3 @@ class RAGApplication:
         return RAGQuery(chain, model_name=self.config.model).query(
             question, return_sources=return_sources, verbose=verbose
         )
-
-    def interactive_cli(self):
-        """Launch interactive CLI."""
-        chain = self.get_chain()
-        cli = InteractiveQueryCLI(RAGQuery(chain, model_name=self.config.model))
-        cli.run()

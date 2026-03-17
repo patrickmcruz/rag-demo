@@ -25,7 +25,7 @@ Guia prático para melhorar a performance da indexação e qualidade das respost
 **Otimizado:** Aumentar para 256-512
 
 ```python
-# src/ingest.py - Modificar _get_embedding()
+# src/core/ingest_service.py - Modificar _get_embedding()
 def _get_embedding(self) -> HuggingFaceEmbeddings:
     """Lazy load embedding model com batch otimizado."""
     if self.embedding is None:
@@ -50,7 +50,7 @@ def _get_embedding(self) -> HuggingFaceEmbeddings:
 ### 1.2 Usar Precision Reduzida (FP16)
 
 ```python
-# src/chain.py - Modificar get_device()
+# src/core/chain_factory.py - Modificar get_device()
 import torch
 
 def get_device(use_gpu: bool = False, gpu_device: int = 0):
@@ -61,7 +61,7 @@ def get_device(use_gpu: bool = False, gpu_device: int = 0):
         return device
     return "cpu"
 
-# src/ingest.py - Usar float16 para embeddings
+# src/core/ingest_service.py - Usar float16 para embeddings
 def _get_embedding(self) -> HuggingFaceEmbeddings:
     """Lazy load embedding model com FP16."""
     if self.embedding is None:
@@ -91,7 +91,7 @@ def _get_embedding(self) -> HuggingFaceEmbeddings:
 ### 1.3 Paralelizar Processamento de Documentos
 
 ```python
-# src/ingest.py - Usar ProcessPoolExecutor para loading
+# src/core/ingest_service.py - Usar ProcessPoolExecutor para loading
 from concurrent.futures import ProcessPoolExecutor
 import multiprocessing
 
@@ -179,7 +179,7 @@ CHUNK_OVERLAP=75
 **Melhorado:** TOP_K=10 com reranking
 
 ```python
-# src/chain.py - Adicionar reranking
+# src/core/chain_factory.py - Adicionar reranking
 from langchain_community.document_compressors import CohereReranker
 from langchain.retrievers import ContextualCompressionRetriever
 
@@ -215,7 +215,7 @@ def build_retriever(self):
 ### 2.3 Tuning de Temperatura por Tipo de Query
 
 ```python
-# src/query.py - Detectar tipo de query
+# src/core/query_service.py - Detectar tipo de query
 def detect_query_type(question: str) -> str:
     """Detectar tipo de pergunta para otimizar temperatura."""
     question_lower = question.lower()
@@ -281,7 +281,7 @@ EMBEDDING_MODEL=all-mpnet-base-v2   # Melhor qualidade, 440MB
 ### 3.2 Normalizar e Preprocessar Documentos
 
 ```python
-# src/ingest.py - Adicionar preprocessamento
+# src/core/ingest_service.py - Adicionar preprocessamento
 def preprocess_documents(self, docs: List[Document]) -> List[Document]:
     """Preprocess documents for better embeddings."""
     processed = []
@@ -315,7 +315,7 @@ all_docs = self.preprocess_documents(all_docs)
 ### 4.1 Implementar Caching
 
 ```python
-# src/query.py - Adicionar LRU cache
+# src/core/query_service.py - Adicionar LRU cache
 from functools import lru_cache
 import hashlib
 
@@ -359,7 +359,7 @@ class RAGQuery:
 ### 4.2 Hybrid Search (Similarity + BM25)
 
 ```python
-# src/chain.py - Implementar búsqueda híbrida
+# src/core/chain_factory.py - Implementar búsqueda híbrida
 from langchain_community.retrievers import BM25Retriever
 from langchain.retrievers import EnsembleRetriever
 
@@ -396,7 +396,7 @@ def build_retriever(self):
 ### 5.1 Prompt Otimizado para Contexto Legal/Técnico
 
 ```python
-# src/chain.py - Melhorar template de prompt
+# src/core/chain_factory.py - Melhorar template de prompt
 def build_prompt(self, language: str = "pt") -> ChatPromptTemplate:
     """Build optimized prompt with better instructions."""
     
@@ -445,7 +445,7 @@ Detailed answer:"""
 ### 5.2 Few-Shot Prompting
 
 ```python
-# src/chain.py - Adicionar exemplos
+# src/core/chain_factory.py - Adicionar exemplos
 def build_prompt_with_examples(self, language: str = "pt"):
     """Build prompt with few-shot examples."""
     
@@ -584,7 +584,7 @@ USE_GPU=true
 ## 📈 Métricas para Monitorar
 
 ```python
-# Implementar em src/query.py
+# Implementar em src/core/query_service.py
 class MetricsTracker:
     def __init__(self):
         self.metrics = {

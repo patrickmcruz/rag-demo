@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from src.api.models import ChatRequest, IngestRequest, QueryRequest
+from src.api.schemas import ChatRequest, IngestRequest, QueryRequest
 
 
 # ---------------------------------------------------------------------------

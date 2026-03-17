@@ -7,8 +7,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 
 from src.api.deps import get_ready_rag_app
-from src.api.models import QueryRequest, QueryResponse, SourceDocument
-from src.app import RAGApplication
+from src.api.schemas import QueryRequest, QueryResponse, SourceDocument
+from src.core.rag_service import RAGApplication
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

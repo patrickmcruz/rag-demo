@@ -8,9 +8,9 @@ from typing import Annotated
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 
 from src.api.deps import get_job_store, get_rag_app
-from src.api.models import IngestAcceptedResponse, IngestRequest, IngestStatusResponse
+from src.api.schemas import IngestAcceptedResponse, IngestRequest, IngestStatusResponse
 from src.api.tasks import IngestJob, IngestJobStore, JobStatus
-from src.app import RAGApplication
+from src.core.rag_service import RAGApplication
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/ingest")

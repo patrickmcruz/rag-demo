@@ -5,8 +5,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 
 from src.api.deps import get_rag_app
-from src.api.models import InfoResponse
-from src.app import RAGApplication
+from src.api.schemas import InfoResponse
+from src.core.rag_service import RAGApplication
 
 router = APIRouter()
 

@@ -6,11 +6,6 @@ from typing import Dict, List, Literal, Optional
 from pydantic import BaseModel, Field
 
 
-# ---------------------------------------------------------------------------
-# Request models
-# ---------------------------------------------------------------------------
-
-
 class QueryRequest(BaseModel):
     question: str = Field(..., min_length=1, max_length=2000)
     return_sources: bool = True
@@ -31,11 +26,6 @@ class IngestRequest(BaseModel):
 class ChatRequest(BaseModel):
     question: str = Field(..., min_length=1, max_length=2000)
     language: Literal["pt", "en"] = "pt"
-
-
-# ---------------------------------------------------------------------------
-# Response models
-# ---------------------------------------------------------------------------
 
 
 class HealthResponse(BaseModel):

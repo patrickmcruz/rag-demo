@@ -8,8 +8,8 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 
 from src.api.deps import get_ready_rag_app
-from src.api.models import ChatRequest
-from src.app import RAGApplication
+from src.api.schemas import ChatRequest
+from src.core.rag_service import RAGApplication
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/chat")

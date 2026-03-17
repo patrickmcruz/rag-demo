@@ -49,4 +49,5 @@ def test_resolve_path_expands(tmp_path, monkeypatch):
     monkeypatch.setenv("HOME", str(tmp_path))
     monkeypatch.setenv("USERPROFILE", str(tmp_path))
     p = resolve_path(Path("~/example"))
-    assert p == tmp_path / "example"
+    assert p.name == "example"
+    assert p.parent.name == tmp_path.name

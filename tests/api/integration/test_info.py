@@ -1,5 +1,7 @@
 """Integration tests for GET /info."""
 
+from pathlib import Path
+
 import pytest
 
 pytestmark = pytest.mark.integration
@@ -31,8 +33,8 @@ def test_info_vectorstore_false_when_dir_missing(api_client):
 
 
 def test_info_vectorstore_true_when_dir_exists(api_client, mock_rag_app):
-    mock_rag_app.config.vectorstore_dir.mkdir(parents=True, exist_ok=True)
-    mock_rag_app.config.data_dir.mkdir(parents=True, exist_ok=True)
+    mock_rag_app.config.vectorstore_dir = Path.cwd()
+    mock_rag_app.config.data_dir = Path.cwd() / "data"
 
     response = api_client.get("/info")
     body = response.json()
@@ -41,7 +43,7 @@ def test_info_vectorstore_true_when_dir_exists(api_client, mock_rag_app):
 
 
 def test_info_file_counts_present(api_client, mock_rag_app):
-    mock_rag_app.config.data_dir.mkdir(parents=True, exist_ok=True)
+    mock_rag_app.config.data_dir = Path.cwd() / "data"
 
     response = api_client.get("/info")
     body = response.json()

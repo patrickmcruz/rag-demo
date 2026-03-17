@@ -1,6 +1,8 @@
-"""Test configuration for ensuring src is importable."""
+"""Shared pytest configuration for the test suite."""
 
+import shutil
 import sys
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -11,20 +13,19 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 
-def pytest_configure(config):
-    """Use a local basetemp to avoid Windows permission errors on system temp."""
-    local_tmp = ROOT / ".pytest_tmp"
-    local_tmp.mkdir(exist_ok=True)
-    config.option.basetemp = local_tmp
+@pytest.fixture
+def tmp_path():
+    """Local replacement for pytest's tmp_path to avoid Windows temp permission issues."""
+    path = Path(tempfile.mkdtemp(prefix="rag-demo-test-"))
+    try:
+        yield path
+    finally:
+        shutil.rmtree(path, ignore_errors=True)
 
 
 @pytest.fixture
 def app_config(tmp_path):
-    """Shared AppConfig fixture with all required fields.
-
-    Used across core/ and api/ tests.  Uses tmp_path so each test gets
-    isolated data_dir and vectorstore_dir paths.
-    """
+    """Shared AppConfig fixture with isolated paths for each test."""
     from src.config import AppConfig
 
     return AppConfig(

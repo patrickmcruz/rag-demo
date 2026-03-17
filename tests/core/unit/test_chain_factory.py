@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.chain import RAGChainBuilder, RAGChainFactory
+from src.core.chain_factory import RAGChainBuilder, RAGChainFactory
 
 
 class DummyBuilder(RAGChainBuilder):
@@ -25,7 +25,7 @@ def test_factory_uses_builder(monkeypatch, tmp_path):
         assert top_k == 5
         return dummy_builder
 
-    monkeypatch.setattr("src.chain.RAGChainBuilder", fake_builder)
+    monkeypatch.setattr("src.core.chain_factory.RAGChainBuilder", fake_builder)
 
     factory = RAGChainFactory(
         vectorstore_path=str(tmp_path),

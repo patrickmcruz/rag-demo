@@ -1,5 +1,7 @@
 """Integration tests for GET /health and GET /health/ready."""
 
+from pathlib import Path
+
 import pytest
 
 pytestmark = pytest.mark.integration
@@ -32,8 +34,7 @@ def test_readiness_503_when_vectorstore_missing(api_client):
 
 
 def test_readiness_200_when_vectorstore_exists(api_client, mock_rag_app):
-    vs_dir = mock_rag_app.config.vectorstore_dir
-    vs_dir.mkdir(parents=True, exist_ok=True)
+    mock_rag_app.config.vectorstore_dir = Path.cwd()
 
     response = api_client.get("/health/ready")
     assert response.status_code == 200

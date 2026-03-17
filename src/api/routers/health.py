@@ -7,8 +7,8 @@ from fastapi import APIRouter, Depends, Response, status
 
 from src import __version__
 from src.api.deps import get_rag_app
-from src.api.models import HealthResponse, ReadinessResponse
-from src.app import RAGApplication
+from src.api.schemas import HealthResponse, ReadinessResponse
+from src.core.rag_service import RAGApplication
 
 router = APIRouter()
 

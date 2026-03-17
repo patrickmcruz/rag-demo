@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.app import RAGApplication
+from src.core.rag_service import RAGApplication
 from tests.helpers import DummyFactory, DummyIngestionService, DummyIngestor, DummyQuery
 
 
@@ -48,7 +48,7 @@ def test_ingest_delegates(app_config, monkeypatch):
 def test_chain_build_and_cache(app_config, monkeypatch):
     app = RAGApplication(app_config)
     factory = DummyFactory()
-    monkeypatch.setattr("src.app.RAGChainFactory", lambda **kwargs: factory)
+    monkeypatch.setattr("src.core.rag_service.RAGChainFactory", lambda **kwargs: factory)
 
     chain1 = app.get_chain()
     chain2 = app.get_chain()
@@ -64,7 +64,7 @@ def test_query_uses_ragquery(app_config, monkeypatch):
     app = RAGApplication(app_config)
     monkeypatch.setattr(app, "get_chain", lambda: "chain")
     dummy_query = DummyQuery()
-    monkeypatch.setattr("src.app.RAGQuery", lambda *args, **kwargs: dummy_query)
+    monkeypatch.setattr("src.core.rag_service.RAGQuery", lambda *args, **kwargs: dummy_query)
 
     res = app.query("hi", return_sources=False, verbose=True)
 

@@ -1,129 +1,50 @@
 # RAG Demo
 
-Sistema de Retrieval-Augmented Generation com LangChain, ChromaDB e Ollama.
+[![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-API-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![LangChain](https://img.shields.io/badge/LangChain-Orquestracao-1C3C3C)](https://www.langchain.com/)
+[![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector%20Store-6E59F7)](https://www.trychroma.com/)
+[![Ollama](https://img.shields.io/badge/Ollama-LLM%20Local-111111)](https://ollama.com/)
 
-## Visao geral
-- Ingestao de documentos (PDF/TXT/MD), splitting e embeddings com sentence-transformers.
-- Vector store persistente com Chroma.
-- Chain RAG configuravel (LLM Ollama, top-k, temperatura).
-- CLI para ingestao, queries e informacoes do sistema.
+Sistema de Retrieval-Augmented Generation para ingestao de documentos e consultas semanticas com API em FastAPI, embeddings locais e execucao de modelos via Ollama.
 
-Documentacao detalhada em `docs/` (arquitetura, guias, FAQ, changelog) ou veja o [README da pasta docs](docs/README.md).
+## Resumo
+O projeto opera exclusivamente em modo API. A aplicacao expoe endpoints para ingestao, consulta, health check, informacoes do sistema e streaming de resposta, mantendo a logica central reutilizavel em uma camada de dominio separada.
 
-## Requisitos
-- Python 3.12
-- Ollama instalado e modelo (ex.: `ollama pull llama3`)
-- Ambiente virtual recomendado
+## Destaques
+- API REST com FastAPI
+- Chat com streaming via SSE
+- Ingestao assincrona com controle de status
+- ChromaDB como vector store persistente
+- Ollama para execucao local de LLM
+- Camada `core` separada da camada `api`
+- Base de testes separada entre `tests/api` e `tests/core`
 
-## Instalacao rapida
-```bash
-python -m venv .venv
-.\.venv\Scripts\activate  # Windows
-# source .venv/bin/activate  # Linux/Mac
-pip install -r requirements.txt
-copy .env.example .env  # ou ajuste variaveis
-```
+## Apresentacao do projeto
+Na versao atual, todo o fluxo principal e API-first:
+- `api_server.py` inicia o servico HTTP
+- `src/api/main.py` monta a aplicacao FastAPI
+- `src/core/rag_service.py` concentra a orquestracao principal do RAG
 
-## Uso rapido
-```bash
-# Indexar documentos em ./data para ./vectorstore
-python main.py ingest
+## Estrutura de documentacao
+A documentacao detalhada do projeto esta em [docs/README.md](docs/README.md).
 
-# Iniciar CLI interativa de consulta
-python main.py query --interactive
+La voce encontra:
+- sumario tecnico
+- stack e tecnologias detalhadas
+- arquitetura e system design
+- registros de decisoes arquiteturais (ADRs)
+- como clonar o repositorio
+- como configurar ambiente
+- como rodar a API
+- endpoints principais e Swagger
+- testes
+- organizacao do projeto
+- links para documentos complementares
 
-# Consulta unica
-python main.py query -q "Qual o assunto principal?"
-```
-
-## Verificacao rapida
-```bash
-# Validar imports basicos
-python -c "from src.app import RAGApplication; print('OK')"
-
-# Verificar ambiente e caminhos
-python main.py info
-```
-
-## Checklist de ambiente
-- Ollama instalado e em execucao (`ollama list` deve responder).
-- Modelo Ollama baixado (ex.: `ollama pull llama3`).
-- Permissao de rede habilitada para baixar embeddings na primeira execucao.
-- Pasta `data/` com arquivos ou subpastas; permissao de escrita em `vectorstore/`.
-- Ambiente virtual ativo antes de rodar CLI.
-
-## Configuracao (env)
-Principais variaveis (veja `.env.example`):
-- `DATA_DIR` / `VECTORSTORE_DIR`
-- `OLLAMA_MODEL`
-- `EMBEDDING_MODEL`
-- `CHUNK_SIZE`, `CHUNK_OVERLAP`, `TOP_K_DOCUMENTS`, `TEMPERATURE`
-- `LOG_LEVEL`
-- `USE_GPU`, `GPU_DEVICE` (opcional, para aceleracao GPU)
-
-## Aceleracao por GPU (Opcional)
-
-A aplicacao usa **CPU por padrao**, mas pode ser acelerada com GPU NVIDIA (CUDA):
-
-### Requisitos
-- GPU NVIDIA compativel (GTX 1060+, RTX serie)
-- CUDA Toolkit 11.8+ instalado
-- Drivers NVIDIA atualizados
-
-### Instalacao
-```bash
-# Instalar PyTorch com CUDA
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-
-# Verificar disponibilidade
-python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')"
-```
-
-### Configuracao
-Adicione ao `.env`:
-```bash
-USE_GPU=true
-GPU_DEVICE=0  # ID da GPU (0, 1, 2...)
-```
-
-### Performance
-- **Embeddings**: 3-5x mais rapido com GPU
-- **LLM (Ollama)**: Usa GPU automaticamente se disponivel
-- **Recomendado**: 6GB+ VRAM para modelos grandes
-
-### Monitorar uso da GPU
-```bash
-# Durante ingestao/query:
-nvidia-smi -l 1
-```
-
-## CLI (comandos)
-- `python main.py ingest` — indexa arquivos (opcoes: `--file-types`, `--chunk-size`, `--chunk-overlap`).
-- `python main.py query` — modo interativo (`--interactive`) ou pergunta unica (`-q`), ajustando `--model`, `--embedding-model`, `--top-k`, `--temperature`.
-- `python main.py info` — mostra paths, modelos e status do vectorstore.
-
-## Estrutura do projeto
-```
-src/
-  app.py            # Orquestracao (RAGApplication)
-  config.py         # Config e loader de env
-  logging_config.py # Configuracao de logging
-  ingest.py         # Ingestao de documentos
-  chain.py          # Builder/factory da chain RAG
-  query.py          # Interface de consulta e CLI interativa
-tests/
-  unit/             # Testes unitarios
-  integration/      # Testes de integracao leves
-docs/               # Guias, arquitetura, FAQ, changelog
-```
-
-## Testes
-```bash
-pytest tests/unit -q
-pytest tests/integration -q
-```
-
-## Suporte e links uteis
-- Documentacao detalhada: [README da pasta docs](docs/README.md).
-- Issues/Discussoes: https://github.com/patrickmcruz/rag-demo
-- Email: patrickmcruz@gmail.com
+## Acesso rapido
+- Documentacao completa: [docs/README.md](docs/README.md)
+- Arquitetura: [docs/architecture/ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md)
+- ADRs: [docs/architecture/adr/](docs/architecture/adr)
+- Changelog: [docs/CHANGELOG.md](docs/CHANGELOG.md)
+- Testes automatizados: [tests/README.md](tests/README.md)

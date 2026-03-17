@@ -1,63 +1,54 @@
 # Suite de Testes
 
-Suite de testes do RAG Demo. Cobre toda a aplicacao — modulos de negocio e camada de servico FastAPI — com testes unitarios e de integracao. Nenhum teste requer chamadas reais a Ollama, ChromaDB ou modelos de embeddings.
+Suite de testes do RAG Demo. Cobre a camada de dominio em `src/core/` e a camada HTTP em `src/api/`, sem depender de chamadas reais a Ollama, ChromaDB ou modelos de embeddings.
 
 ## Resultado atual
 
-```
-67 passed, 0 failed
+```text
+66 passed
 ```
 
 ## Como rodar
 
 ```bash
 # Suite completa
+.venv/Scripts/python -m pytest tests/ -q
+
+# Com mais detalhes
 .venv/Scripts/python -m pytest tests/ -v
 
-# Com relatorio de cobertura
+# Com cobertura
 .venv/Scripts/python -m pytest tests/ --cov=src --cov-report=term-missing
-
-# Apenas testes rapidos (exclui marcados como slow)
-.venv/Scripts/python -m pytest tests/ -m "not slow" -v
 ```
 
-## Categorias
+## Organizacao
 
-| Pasta | Testes | Descricao |
-|-------|--------|-----------|
-| [core/unit/](core/unit/README.md) | 16 | Modulos de negocio: config, app, chain, ingest, query |
-| [core/integration/](core/integration/README.md) | 1 | Fiacao ponta-a-ponta (RAGApplication sem LLM/DB real) |
-| [api/](api/README.md) | 50 | Camada FastAPI: schemas, job store e todos os endpoints |
+| Pasta | Descricao |
+|-------|-----------|
+| [core/unit/](core/unit/README.md) | Testes unitarios dos servicos em `src/core/` e da configuracao |
+| [core/integration/](core/integration/README.md) | Integracao leve do fluxo de dominio |
+| [api/](api/README.md) | Testes de schemas, estado de jobs e endpoints FastAPI |
 
 ## Infraestrutura
 
-### conftest.py (raiz de tests/)
+### [tests/conftest.py](/c:/Users/patrickcruz/Documents/2026/Pessoal/Github/rag-demo/software-engineering/development/tests/conftest.py)
 
-- Adiciona o root do projeto ao `sys.path` para que `src.*` seja importavel em todos os testes.
-- Define `pytest_configure` que aponta `basetemp` para `.pytest_tmp/` (local e gitignored), evitando erros de permissao no diretorio temporario do sistema no Windows.
-- Fornece a fixture `app_config` compartilhada entre `tests/core/` e `tests/api/`.
+- adiciona a raiz do projeto ao `sys.path`
+- fornece uma fixture `tmp_path` controlada pela suite para evitar problemas de permissao no Windows
+- fornece a fixture compartilhada `app_config`
 
-### Fixtures compartilhadas
+### [tests/helpers.py](/c:/Users/patrickcruz/Documents/2026/Pessoal/Github/rag-demo/software-engineering/development/tests/helpers.py)
 
-A fixture `app_config` esta definida em `tests/conftest.py` e disponivel para todos os tests. As fixtures especificas da API estao em [tests/api/conftest.py](api/conftest.py). As fixtures gerais (`tmp_path`, `monkeypatch`) sao providas pelo proprio pytest.
-
-### Classes auxiliares (tests/helpers.py)
-
-Dummies reutilizaveis entre `core/` e `api/`: `DummyIngestor`, `DummyIngestionService`, `DummyChain` (com `astream()`), `DummyFactory`, `DummyQuery`.
-
-### Marcadores disponıveis
-
-```bash
-# Testes lentos (nenhum ativo por padrao)
-pytest tests/ -m slow
-
-# Testes de integracao
-pytest tests/ -m integration
-```
+Contem doubles reutilizaveis entre `core/` e `api/`:
+- `DummyIngestor`
+- `DummyIngestionService`
+- `DummyChain`
+- `DummyFactory`
+- `DummyQuery`
 
 ## Convencoes
 
-- **Sem dependencias externas reais**: todos os testes usam `monkeypatch` ou objetos dummy.
-- **Nomenclatura**: `test_<o_que_faz>.py` → `test_<cenario>()`.
-- **Falhas esperadas** sao testadas com `pytest.raises` ou verificacao de status HTTP.
-- `AppConfig` sempre recebe `use_gpu=False, gpu_device=0` nas fixtures (campos obrigatorios).
+- testes de dominio importam de `src/core/*`
+- testes de API importam de `src/api/main.py`, `src/api/schemas.py` e `src/api/tasks.py`
+- cenarios que antes criavam diretorios reais agora preferem simular existencia de paths ou usar caminhos controlados pela fixture
+- marcadores de integracao usam `@pytest.mark.integration`

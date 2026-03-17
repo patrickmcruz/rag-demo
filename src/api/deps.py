@@ -2,7 +2,7 @@
 
 from fastapi import Depends, HTTPException, Request, status
 
-from src.app import RAGApplication
+from src.core.rag_service import RAGApplication
 from src.api.tasks import IngestJobStore
 
 
@@ -27,7 +27,7 @@ def get_ready_rag_app(request: Request) -> RAGApplication:
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=(
                 "Vectorstore not initialized. "
-                "Run POST /ingest or 'python main.py ingest' first."
+                "Run POST /ingest first."
             ),
         )
     return rag_app

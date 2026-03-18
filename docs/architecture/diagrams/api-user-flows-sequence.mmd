@@ -1,0 +1,79 @@
+sequenceDiagram
+    autonumber
+    actor User as Usuario / Frontend
+    participant API as FastAPI API
+    participant JobStore as IngestJobStore
+    participant RAG as RAGApplication
+    participant Ingest as IngestionService
+    participant VS as ChromaDB Vector Store
+    participant Chain as RAG Chain
+    participant LLM as Ollama
+
+    User->>API: GET /health
+    API-->>User: 200 OK (liveness, version, timestamp)
+
+    User->>API: GET /info
+    API->>RAG: read current config and local state
+    RAG->>VS: check persisted vectorstore
+    VS-->>RAG: exists / missing
+    RAG-->>API: runtime info
+    API-->>User: 200 OK (model, dirs, chunk config)
+
+    User->>API: GET /health/ready
+    API->>RAG: check vectorstore_exists and chain cache
+    RAG->>VS: verify vectorstore path
+    VS-->>RAG: exists / missing
+    RAG-->>API: ready/not_ready + chain_ready
+    alt Vectorstore exists
+        API-->>User: 200 Ready
+    else Vectorstore missing
+        API-->>User: 503 Not Ready
+    end
+
+    opt Initial ingestion when vectorstore is missing or stale
+        User->>API: POST /ingest
+        API->>JobStore: create queued job
+        JobStore-->>API: job_id
+        API-->>User: 202 Accepted (job_id)
+
+        API->>RAG: apply overrides from request
+        API->>Ingest: start background ingestion
+        Ingest->>JobStore: mark running
+        Ingest->>Ingest: load docs and split into chunks
+        Ingest->>LLM: create embeddings model client
+        Ingest->>VS: persist chunks and embeddings
+        VS-->>Ingest: persisted
+        Ingest->>JobStore: mark done or failed
+
+        loop Poll until done
+            User->>API: GET /ingest/{job_id}
+            API->>JobStore: read job status
+            JobStore-->>API: queued/running/done/failed
+            API-->>User: job state + timestamps + error
+        end
+    end
+
+    User->>API: POST /query
+    API->>RAG: ensure ready and apply query overrides
+    RAG->>VS: load retriever from vectorstore
+    RAG->>Chain: get or build chain
+    Chain->>VS: retrieve top-k relevant chunks
+    VS-->>Chain: source documents
+    Chain->>LLM: generate grounded answer
+    LLM-->>Chain: final answer
+    Chain-->>RAG: answer + sources + metrics
+    RAG-->>API: structured query response
+    API-->>User: 200 OK (answer, sources, response_time)
+
+    User->>API: POST /chat/stream
+    API->>RAG: ensure ready
+    RAG->>Chain: get existing or rebuilt chain
+    Chain->>VS: retrieve relevant chunks
+    VS-->>Chain: source documents
+    Chain->>LLM: stream generation
+    loop For each token
+        LLM-->>Chain: token chunk
+        Chain-->>API: token chunk
+        API-->>User: SSE data: {"token":"...","done":false}
+    end
+    API-->>User: SSE data: {"token":"","done":true}

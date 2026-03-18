@@ -38,6 +38,22 @@ class DocumentIngestor:
         self.gpu_device = gpu_device
         self.embedding: Optional[HuggingFaceEmbeddings] = None
 
+    def _repair_text_encoding(self, text: str) -> str:
+        """Repair common mojibake caused by UTF-8 decoded as Latin-1/CP1252."""
+        suspicious_patterns = ("Ã", "â", "ð", "�")
+        if not any(pattern in text for pattern in suspicious_patterns):
+            return text
+
+        for source_encoding in ("latin-1", "cp1252"):
+            try:
+                repaired = text.encode(source_encoding).decode("utf-8")
+                if repaired != text:
+                    return repaired
+            except (UnicodeEncodeError, UnicodeDecodeError):
+                continue
+
+        return text
+
     def _get_embedding(self) -> HuggingFaceEmbeddings:
         if self.embedding is None:
             device = get_device(self.use_gpu, self.gpu_device)
@@ -65,13 +81,20 @@ class DocumentIngestor:
             try:
                 glob_pattern = f"**/*.{file_type}"
                 logger.info(f"Loading {file_type} files from {data_dir}")
+                loader_kwargs = {}
+                if file_type == "txt":
+                    loader_kwargs = {"autodetect_encoding": True, "encoding": "utf-8"}
+
                 loader = DirectoryLoader(
                     data_dir,
                     glob=glob_pattern,
                     loader_cls=self._get_loader_for_type(file_type),
+                    loader_kwargs=loader_kwargs,
                     show_progress=True,
                 )
                 docs = loader.load()
+                for doc in docs:
+                    doc.page_content = self._repair_text_encoding(doc.page_content)
                 all_docs.extend(docs)
                 logger.info(f"Loaded {len(docs)} {file_type} documents")
             except Exception as exc:

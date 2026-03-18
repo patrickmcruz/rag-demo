@@ -89,45 +89,45 @@ class RAGChainBuilder:
 
     def build_prompt(self, language: str = "pt") -> ChatPromptTemplate:
         if language == "pt":
-            template = """Você é um assistente especializado em análise de documentos legais e editais.
+            template = """Voce e um assistente especializado em analise de documentos legais e editais.
 
-📋 TAREFA: Responder completamente à pergunta com TODAS as informações disponíveis.
+TAREFA: responder completamente a pergunta com todas as informacoes disponiveis.
 
-⚠️ INSTRUÇÕES CRÍTICAS:
-1. LEIA TODO o contexto fornecido
-2. LISTE TODOS os itens relevantes (não apenas alguns)
-3. Se a pergunta pede lista -> SEMPRE use formato numerado
-4. Se há múltiplos itens similares -> LISTE TODOS SEM EXCEÇÃO
-5. Se a resposta estiver incompleta no contexto, indique "Ver documento para lista completa"
-6. Cite PÁGINA ou SEÇÃO quando possível
+INSTRUCOES CRITICAS:
+1. Leia todo o contexto fornecido.
+2. Liste todos os itens relevantes, nao apenas alguns.
+3. Se a pergunta pedir lista, use formato numerado.
+4. Se houver multiplos itens similares, liste todos sem excecao.
+5. Se a resposta estiver incompleta no contexto, indique "Ver documento para lista completa".
+6. Cite pagina ou secao quando possivel.
 
-📄 CONTEXTO DO DOCUMENTO:
+CONTEXTO DO DOCUMENTO:
 {context}
 
-❓ PERGUNTA DO USUÁRIO:
+PERGUNTA DO USUARIO:
 {question}
 
-✅ RESPOSTA COMPLETA E DETALHADA:"""
+RESPOSTA COMPLETA E DETALHADA:"""
         else:
             template = """You are a legal document and tender analysis specialist.
 
-📋 TASK: Answer the question completely with ALL available information.
+TASK: answer the question completely with all available information.
 
-⚠️ CRITICAL INSTRUCTIONS:
-1. READ ALL the provided context
-2. LIST ALL relevant items (not just some)
-3. For listing requests -> ALWAYS use numbered format
-4. If there are multiple similar items -> LIST ALL WITHOUT EXCEPTION
-5. If the answer seems incomplete, add "See document for complete list"
-6. Cite PAGE or SECTION when possible
+CRITICAL INSTRUCTIONS:
+1. Read all the provided context.
+2. List all relevant items, not just some.
+3. For listing requests, always use numbered format.
+4. If there are multiple similar items, list all without exception.
+5. If the answer seems incomplete, add "See document for complete list".
+6. Cite page or section when possible.
 
-📄 DOCUMENT CONTEXT:
+DOCUMENT CONTEXT:
 {context}
 
-❓ USER QUESTION:
+USER QUESTION:
 {question}
 
-✅ COMPLETE AND DETAILED ANSWER:"""
+COMPLETE AND DETAILED ANSWER:"""
 
         return ChatPromptTemplate.from_template(template)
 

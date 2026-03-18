@@ -179,6 +179,22 @@ async function streamChat(question: string, onToken: (token: string) => void) {
 
 ## 2. PowerShell
 
+Script utilitario para fluxo feliz completo:
+
+```powershell
+.\scripts\dev\test-happy-path.ps1
+```
+
+Exemplo com parametros explicitos:
+
+```powershell
+.\scripts\dev\test-happy-path.ps1 `
+  -ApiBaseUrl "http://localhost:8000" `
+  -DataDir ".\data" `
+  -VectorstoreDir ".\vectorstore" `
+  -Question "Qual o conteudo principal do documento?"
+```
+
 ### 2.1 Health
 
 ```powershell
@@ -260,10 +276,36 @@ Invoke-RestMethod `
 
 ### 2.7 Chat com streaming
 
-Observacao: `Invoke-RestMethod` nao e a melhor ferramenta para consumir SSE token a token. Para testes rapidos de streaming no PowerShell, prefira:
-- `curl.exe`
+Observacao: `Invoke-RestMethod` e a melhor opcao para requests JSON comuns no PowerShell. Quando voce precisar usar `curl.exe` no PowerShell, evite passar JSON inline com `-d "{...}"`, porque o shell pode quebrar o escaping.
+
+Padrao seguro para `curl.exe` no PowerShell:
+
+```powershell
+@'
+{"question":"Qual o conteudo principal do documento?","return_sources":true,"language":"pt","top_k":5,"temperature":0.2}
+'@ | Set-Content -Path .\query.json -Encoding utf8
+
+curl.exe -X POST "http://localhost:8000/query" `
+  -H "Content-Type: application/json; charset=utf-8" `
+  --data-binary "@query.json"
+```
+
+Para streaming SSE, prefira:
+- `curl.exe -N` com arquivo JSON
 - um cliente frontend com `fetch`
 - script customizado com `HttpClient` e leitura de stream
+
+Exemplo seguro de streaming com `curl.exe` no PowerShell:
+
+```powershell
+@'
+{"question":"Resuma o documento","language":"pt"}
+'@ | Set-Content -Path .\chat-stream.json -Encoding utf8
+
+curl.exe -N -X POST "http://localhost:8000/chat/stream" `
+  -H "Content-Type: application/json; charset=utf-8" `
+  --data-binary "@chat-stream.json"
+```
 
 ## 3. curl
 
@@ -293,6 +335,18 @@ curl -X POST "http://localhost:8000/ingest" ^
   -d "{\"data_dir\":\"./data\",\"vectorstore_dir\":\"./vectorstore\",\"file_types\":[\"pdf\",\"txt\",\"md\"],\"chunk_size\":350,\"chunk_overlap\":75}"
 ```
 
+Se voce estiver executando `curl.exe` a partir do PowerShell, prefira arquivo JSON com `--data-binary`:
+
+```powershell
+@'
+{"data_dir":"./data","vectorstore_dir":"./vectorstore","file_types":["pdf","txt","md"],"chunk_size":350,"chunk_overlap":75}
+'@ | Set-Content -Path .\ingest.json -Encoding utf8
+
+curl.exe -X POST "http://localhost:8000/ingest" `
+  -H "Content-Type: application/json; charset=utf-8" `
+  --data-binary "@ingest.json"
+```
+
 ### 3.5 Polling do job de ingestao
 
 ```bash
@@ -307,12 +361,36 @@ curl -X POST "http://localhost:8000/query" ^
   -d "{\"question\":\"Qual o conteudo principal do documento?\",\"return_sources\":true,\"language\":\"pt\",\"top_k\":5,\"temperature\":0.2}"
 ```
 
+No PowerShell, use este formato seguro:
+
+```powershell
+@'
+{"question":"Qual o conteudo principal do documento?","return_sources":true,"language":"pt","top_k":5,"temperature":0.2}
+'@ | Set-Content -Path .\query.json -Encoding utf8
+
+curl.exe -X POST "http://localhost:8000/query" `
+  -H "Content-Type: application/json; charset=utf-8" `
+  --data-binary "@query.json"
+```
+
 ### 3.7 Chat com streaming
 
 ```bash
 curl -N -X POST "http://localhost:8000/chat/stream" ^
   -H "Content-Type: application/json" ^
   -d "{\"question\":\"Resuma o documento\",\"language\":\"pt\"}"
+```
+
+No PowerShell, use este formato seguro:
+
+```powershell
+@'
+{"question":"Resuma o documento","language":"pt"}
+'@ | Set-Content -Path .\chat-stream.json -Encoding utf8
+
+curl.exe -N -X POST "http://localhost:8000/chat/stream" `
+  -H "Content-Type: application/json; charset=utf-8" `
+  --data-binary "@chat-stream.json"
 ```
 
 ## Contratos importantes
